@@ -1,0 +1,93 @@
+---
+title: "Six Sigma In R"
+author: "Illarion  Jabine"
+date: "27/01/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+### 1. Required packages:
+
+* [SixSigma]: Six Sigma Tools for Quality Control and Improvement
+* [qcc]: Quality Control Charts (Shewhart quality control charts for continuous, attribute and count data.)
+
+### 2. Key terms
+ * Six Sigma 
+ * COntrol Chart
+ * 
+
+### 3. Useful Links
+ * Six Sigma with R: <https://www.springer.com/gp/book/9781461436515>
+ * Wiki: <https://en.wikipedia.org/wiki/Six_Sigma>
+ * ISO 13053-1:2011: Quantitative methods in process improvement — Six Sigma <https://www.iso.org/standard/52901.html>
+ 
+## 4. Introduction
+Six Sigma is one of the most widely used set of techniques, tools and method's aimed at 
+improving business processes and optimizing operations.
+Sigma is a statistical term which defines the standard deviation from from the mean of the normal distribution.
+If we take 3 sigmas to left and 3 sigmas to the right from the mean (i.e. 6 sigmas in absolute value) then 99.99% of observations will be in this range.
+Six Sigma is an indispensable tool for quality control and improvement initiatives.
+It uses statistical methods to statistical methods to monitor and control a process.
+And this is a strong point about Six Sigma.
+By introducing verifiable data and statistical methods we can define, measure, analyse, improve, and control the business process.
+The management base their decisions on facts rather than assumptions and guesswork.
+If you can not measure something how can you control it? 
+Indeed, Six Sigma clear focus on achieving measurable and quantifiable financial returns.
+To improve existing business processes Six Sigma follows DMAIC and DMADV methodologies.
+ * DMAIC is used for projects aimed at improving an existing business process.
+ * DMADV is used for projects aimed at creating new product or process designs.
+In this manual I will consider DMAIC cycle. DMAIC stands for:
+ 1.Define
+ 2.Measure
+ 3.Analyse
+ 4.Improve
+ 5.Control
+
+### 1. Define
+
+During the definition phase we identify the problem area faced by the customer.
+set the goals to achive
+
+### 2. Measure
+
+
+### 5. Load the libraries
+Let's first load the libraries.
+```{r loading packages, message=FALSE, warning=FALSE}
+library(SixSigma)
+library(qcc)
+```
+
+### 6. Loading and checking the data
+
+Load and check the datasets.
+Dataset1:
+ * 
+ * 
+ 
+```{r load the data and pre-process them}
+# Loading data from Rds file
+
+
+# Checking if there are any NAs:
+
+
+```
+
+### 7. Topic 1
+
+
+### 8. Topic 2
+
+
+### 9. Topic 3
