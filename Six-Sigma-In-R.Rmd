@@ -20,6 +20,8 @@ knitr::opts_chunk$set(
 
 * [SixSigma]: Six Sigma Tools for Quality Control and Improvement
 * [qcc]: Quality Control Charts (Shewhart quality control charts for continuous, attribute and count data.)
+* [qicharts]: Quality Improvement Charts
+* [qualityTools]: Statistical Methods for Quality Science
 
 ### 2. Key terms
  * Six Sigma 
@@ -34,12 +36,15 @@ knitr::opts_chunk$set(
  * Process capability analysis
  * Pareto chart
  * Multivariate control charts
+ * LSL – Lower Specification Limit
+ * USL – Upper Specification Limit.
 
 ### 3. Useful Links
  * Six Sigma with R: <https://www.springer.com/gp/book/9781461436515>
  * Six Sigma Institute: <https://www.sixsigma-institute.org>
  * Wiki: <https://en.wikipedia.org/wiki/Six_Sigma>
  * ISO 13053-1:2011: Quantitative methods in process improvement — Six Sigma <https://www.iso.org/standard/52901.html>
+ * <http://www.r-qualitytools.org>
  
 ## 4. Introduction
 Six Sigma is one of the most widely used set of techniques, tools and method's aimed at 
@@ -68,6 +73,8 @@ Let's first load the libraries.
 ```{r loading packages, message=FALSE, warning=FALSE}
 library(SixSigma)
 library(qcc)
+library(qicharts)
+library(qualityTools)
 ```
 
 ### 6. Loading and checking the data
@@ -132,15 +139,63 @@ sub="Paper Helicopter Project")
 
 ### 8. Measure
 If you can not measure something how can you control it? 
-Measure the requirements both in qualitative and quantative terms. Take the current process "as is" and collect the relevant data about it.
-Tools in R:
- 1. Gage R & R
- 2. Process capability analysis
+Take the current process ("as is") and collect the relevant qualitative and quantative data about it.
+Measuring phase can be divided into several steps:
+### 8.1 Data types
+Define what types of data to measure: qualitative or quantitative.
+Qualitative data is subjective in nature and cannot be measured objectively. 
+They can be nominal, ordinal (ranked or ordered) and binary.
+Quantitative data is objective in nature and can be measured. They can be discrete or continuous
+### 8.2 Type of statistics
+Define what kind of statistics to gather. For quantitative data: 
+    * measure of central tendency - mean, median, mode
+    * measure of spread/dispertion: standard deviation, range
+
+### 8.3 Data collection strategy.
+    * Probability Sampling: 
+      Simple Random Sampling
+      Stratified Random Sampling
+      Systematic Sampling
+      Cluster Sampling
+    * Non Probability Sampling: Convenience Sampling, Judgment Sampling, etc
+    
+### 8.4 Measurement System
+The objective of the measure phase is to identify and understand the variation due to the
+measurement system itself and variation arising from the actual production process.
+Measurement System Analysis (MSA) identifies what variations come from appraiser (the operator – individual who operates the tool/instrument) and Variation from Gage due to the instrument itself. 
+Variation from gage can be further classified into Accuracy, Stability, Repeatability, Reproducibility and Linearity.
+The Actual Process Variation are caused by controllable factors and/or uncontrollable factors.
+In general, we can calculate the observed variation as follows:
+Variation (observed) = Variation (Actual) + Variation (Measurement)
+Measurement system errors can be due to:
+ * Accuracy – The difference between the average of observed values and the standard
+ * Repeatability – Variation in measurement when a person measures the same unit repeatedly with the same measuring gage (or tool)
+ * Reproducibility - Variation in measurement when two or more persons measure the same unit using the same measuring gage (or tool)
+ * Stability - Variation in measurement when the same person measures the same unit using the same measuring gage (or tool) over an extended period of time.
+ * Linearity – The consistency of the measurement across the entire range of the measuring gage.
+Process Variation is caused by two reasons: Common Causes(noise) and Special Causes (signals).
+Variation is inherent in the system and results in a stable "in control" state.
+Whereas signal is an unexpected occurrenc due to unforeseen circumstances. It results in "out of control" state because the variation is not predictable.
+
+### 8.5 Data Interpretation
+
+Collected data can be interpreted using the following factors:
+ Stability
+ Normality 
+ Shape
+ Spread 
+ Centering
+
+Tools in R for data interpretation:
+ 1. Gage Repeatability and Reproducibility (Gage R&R)
+ 2. Run chart plots: time ordered plots of process data to understand data stability
+<https://cran.r-project.org/web/packages/qicharts/vignettes/runcharts.html>  3. Standard R functionality for normality check like qqplot, statistical tests, histograms, standard deviation, mean, median, etc. 
  
 
 ### 9. Analyse
 During this phase we analyse the collected data and try to find out the causes of issues.
 There must be some exploitative data analysis carried out to investigate and confirm what is the causing the issues. It's an iterative approach of asking and answering questions. 
+
 R has the following tools to perform such analysis.
  1. Cause and effect diagram
  2. Pareto chart
