@@ -4,7 +4,7 @@ R packages:
 
 bupaR: Business Process Analysis in R
 
-qcc: Quality Control Charts
+qcc, qicharts: Quality Control Charts
 
 SixSigma: Six Sigma Tools for Quality Control and Improvement
 
