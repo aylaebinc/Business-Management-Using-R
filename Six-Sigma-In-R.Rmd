@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 * [SixSigma]: Six Sigma Tools for Quality Control and Improvement
 * [qcc]: Quality Control Charts (Shewhart quality control charts for continuous, attribute and count data.)
 * [qicharts]: Quality Improvement Charts
-* [qualityTools]: Statistical Methods for Quality Science
+* [qualityTools]: Statistical Methods for Quality Science <http://www.r-qualitytools.org>
 
 ### 2. Key terms
  * Six Sigma 
@@ -44,7 +44,6 @@ knitr::opts_chunk$set(
  * Six Sigma Institute: <https://www.sixsigma-institute.org>
  * Wiki: <https://en.wikipedia.org/wiki/Six_Sigma>
  * ISO 13053-1:2011: Quantitative methods in process improvement — Six Sigma <https://www.iso.org/standard/52901.html>
- * <http://www.r-qualitytools.org>
  
 ## 4. Introduction
 Six Sigma is one of the most widely used set of techniques, tools and method's aimed at 
@@ -141,11 +140,13 @@ sub="Paper Helicopter Project")
 If you can not measure something how can you control it? 
 Take the current process ("as is") and collect the relevant qualitative and quantative data about it.
 Measuring phase can be divided into several steps:
+
 ### 8.1 Data types
 Define what types of data to measure: qualitative or quantitative.
 Qualitative data is subjective in nature and cannot be measured objectively. 
 They can be nominal, ordinal (ranked or ordered) and binary.
 Quantitative data is objective in nature and can be measured. They can be discrete or continuous
+
 ### 8.2 Type of statistics
 Define what kind of statistics to gather. For quantitative data: 
     * measure of central tendency - mean, median, mode
@@ -162,6 +163,7 @@ Define what kind of statistics to gather. For quantitative data:
 ### 8.4 Measurement System
 The objective of the measure phase is to identify and understand the variation due to the
 measurement system itself and variation arising from the actual production process.
+Variation and bias are two major elements that can negatively impact the measurement process. 
 Measurement System Analysis (MSA) identifies what variations come from appraiser (the operator – individual who operates the tool/instrument) and Variation from Gage due to the instrument itself. 
 Variation from gage can be further classified into Accuracy, Stability, Repeatability, Reproducibility and Linearity.
 The Actual Process Variation are caused by controllable factors and/or uncontrollable factors.
@@ -175,7 +177,7 @@ Measurement system errors can be due to:
  * Linearity – The consistency of the measurement across the entire range of the measuring gage.
 Process Variation is caused by two reasons: Common Causes(noise) and Special Causes (signals).
 Variation is inherent in the system and results in a stable "in control" state.
-Whereas signal is an unexpected occurrenc due to unforeseen circumstances. It results in "out of control" state because the variation is not predictable.
+Whereas signal is an unexpected occurrenc due to unforeseen circumstances. It results in "out of control" state because the variation is not predictable or unusual.
 
 ### 8.5 Data Interpretation
 
@@ -188,22 +190,156 @@ Collected data can be interpreted using the following factors:
 
 Tools in R for data interpretation:
  1. Gage Repeatability and Reproducibility (Gage R&R)
- 2. Run chart plots: time ordered plots of process data to understand data stability
-<https://cran.r-project.org/web/packages/qicharts/vignettes/runcharts.html>  3. Standard R functionality for normality check like qqplot, statistical tests, histograms, standard deviation, mean, median, etc. 
+ 2. Run chart plots  
+ 3. Control charts
+ 4. Standard R functionality for normality check like qqplot, statistical tests, histograms, standard deviation, mean, median, etc. 
  
+1. Gage Repeatability and Reproducibility
+ss.rr() from SixSigma package and gageRRDesign(), gageRR() from qualityTools produce gage R&R analysis.
+
+```{r gage R&R}
+ss.rr(time1, prototype, operator, data = ss.data.rr, 
+	sub = "Six Sigma Paper Helicopter Project", 
+	alphaLim = 0.05,
+	errorTerm = "interaction",
+	lsl = 0.7,
+	usl = 1.8)
+```
+
+
+
+2. Run chart
+Run chart is simply a time series ordered chart of process data with mean or median shown as a horizontal line.
+With the average line we can better see what is going on with the process.
+Using this chart we can study trends, patterns and variation in the process data over time.
+<https://cran.r-project.org/web/packages/qicharts/vignettes/runcharts.html>
+```{r run chart}
+
+# run chart using standard R functions
+y <- runif(n = 20,min = 10,max = 20)
+plot(y,type = "b")
+
+# adding the horizontal line to the chart
+abline(h = mean(y), v = 0, col = "blue", lty = "dashed")
+
+# run chart using qic() from qicharts package:
+qic(y)
+
+# or tcc() from qicharts
+tcc(y)
+```
+
+3. Control charts
+
+Control charts are "enhanced" version of run charts with upper and lower control limits added.
+
+We can build a basic control charts with standard R functions
+```{r control charts: standard R}
+
+# let's set UCL as the mean + 3 sigma
+ucl <- mean(y) + 3*sd(y)
+
+# let's define LCL as the mean - 3 sigma
+lcl <- mean(y) - 3*sd(y)
+
+plot(y,type = "b", ylim = c(4,25))
+
+# adding the horizontal line to the chart
+abline(h = mean(y), v = 0, col = "blue", lty = "dashed")
+
+# adding the horizontal line to the chart
+abline(h = round(ucl), v = 0, col = "red", lty = "dashed")
+# adding the horizontal line to the chart
+abline(h = lcl, v = 0, col = "red", lty = "dashed")
+
+```
+
+We can build advanced control charts using tcc() from qicharts, qcc() from qcc package.
+There are different control charts depending on data type, on how the data were collected, etc:
+Chart	  Chart description
+"xbar"	means of a continuous process variable
+"R"		ranges of a continuous process variable
+"S"		standard deviations of a continuous variable
+"xbar.one"	one-at-time data of a continuous process variable
+"p"		proportion of nonconforming units
+"np"	number of nonconforming units
+"c"		nonconformities per unit
+"u"		average nonconformities per unit
+"g"		number of non-events between events
+Here is a good tutorial from minitab:
+<https://blog.minitab.com/blog/understanding-statistics/control-chart-tutorials-and-examples>
+Also run ?qcc to read help on qcc() function.
+
+4. Statistical tests
+
+Test             Statistics
+t.test()         mean
+prop.test()      proportion
+var.test()       variance
+bartlett.test()  variance
+chisq.test()     contingency table
+poisson.test()   Poisson distribution
+binom.test()     binomial distribution
+shapiro.test()   normality test
 
 ### 9. Analyse
 During this phase we analyse the collected data and try to find out the causes of issues.
 There must be some exploitative data analysis carried out to investigate and confirm what is the causing the issues. It's an iterative approach of asking and answering questions. 
 
-R has the following tools to perform such analysis.
+R has various statistical methods and tools to perform such analysis.
  1. Cause and effect diagram
  2. Pareto chart
  3. Bar chart
  4. Histogram
  5. Box plot
  6. Scatter plot
+ 7. Regression, correlation and distributions
+ 8. ANOVA
+
+1. Cause and effect diagram
+
+Also know as fishbone or Ishikawa diagrame helps visualize the reasons causing a problem.
+The steps to build the diagram:
+ 1. Identify the main problem.
+ 2. Identify the major factors involved
+ 3. For each factor list possible causes. 
+Somehow I can compare the fishbone diagram to a mind map.
+ss.ceDiag() from SixSigma package and cause.and.effect() from qcc package both produce cause and effect diagram. I find it easier to use cause.and.effect() from qcc.
+```{r Cause and effect diagram}
+cause.and.effect(cause=list(Measurements=c("Micrometers", "Microscopes", "Inspectors"),
+                            Materials=c("Alloys", "Lubricants", "Suppliers"),
+                            Personnel=c("Shifts", "Supervisors", "Training", "Operators"),
+                            Environment=c("Condensation", "Moisture"),
+                            Methods=c("Brake", "Engager", "Angle"),
+                            Machines=c("Speed", "Lathes", "Bits", "Sockets")),
+                 effect="Surface Flaws")
+```
+
+2. Pareto chart
+
+Pareto chart is a bar chart with two axes, with the left one showing the frequency count
+and the right showing the cumulative percentage.
+Pareto chart helps to separate the vital few causes, famous 20% of the defects cause 80 % of the problems, from the trivial many.
+Once you know this vital 20% you can address them immediately.
+
+To produce a pareto chart in R use the following functions:
+ 1. paretoChart() from qualityTools package
+ 2. paretochart() from qicharts package
+ 3. pareto.chart() from qcc package
+
+```{r pareto chart using qualityTools package}
+defects <- c(rep("E", 62), rep("B", 15), rep("F", 3), rep("A", 10), rep("C",20), rep("D", 10))
+qualityTools::paretoChart(defects)
+```
+
+
+### 10. Improve
+
+Well put in place the process improvements. 
+Here is a good reading: <http://www.r-qualitytools.org/IMPROVE.html>
 
 ### 11. Control
 
-Control the process.
+Once the improvements have been put into productions, the performance of the new process has to be monitored and controlled proactively.
+Statistical Process Control (SPC) is used to monitor and control the output parameters of the process (Y’s).
+Control charts are widely used here to identify and prevent process from special causes.
