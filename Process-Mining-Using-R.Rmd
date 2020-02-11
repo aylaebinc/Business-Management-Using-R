@@ -1,0 +1,65 @@
+---
+title: 'Process Mining Using R'
+author: "Illarion  Jabine"
+date: "14/01/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+### 1. Required packages:
+
+* [bupaR]: Business Process Analysis in R
+* []:
+
+### 2. Key terms
+ * Business Process Mining
+ * Process Map
+ * Petri Net
+ * 
+
+### 3. Useful Links
+ * <http://www.processmining.org/book/start>
+ * <https://en.wikipedia.org/wiki/Process_mining>
+ * <https://www.bupar.net>
+ 
+## 4. Introduction
+
+
+### 5. Load the libraries
+Let's ²²first load the libraries.
+```{r loading packages, message=FALSE, warning=FALSE}
+library()
+```
+
+### 6. Loading and checking the data
+
+Load and check the datasets.
+Dataset1:
+ * 
+ * 
+ 
+```{r load the data and pre-process them}
+# Loading data from Rds file
+load("data/anomaly_detection.Rds")
+
+# Checking if there are any NAs:
+anyNA(river_nitrate)
+anyNA(wine)
+
+```
+
+### 7. Topic 1
+
+
+### 8. Topic 2
+
+
+### 9. Topic 3
