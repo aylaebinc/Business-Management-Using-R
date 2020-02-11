@@ -2,7 +2,7 @@
 Business Process Management, Six Sigma, etc
 R packages: 
 
-bupaR: Business Process Analysis in R
+bupaR: Business Process Analysis, Process Mining using R
 
 qcc, qicharts: Quality Control Charts
 
