@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- This file has been generated with the OpenXES library. It conforms -->
+<!-- to the XML serialization of the XES standard for log storage and -->
+<!-- management. -->
+<!-- XES standard version: 1.0 -->
+<!-- OpenXES library version: 1.0RC7 -->
+<!-- OpenXES is available from http://code.deckfour.org/xes/ -->
+<log xes.version="1.0" xes.features="arbitrary-depth" openxes.version="1.0RC7" xmlns="http://code.deckfour.org/xes">
+	<extension name="Lifecycle" prefix="lifecycle" uri="http://code.fluxicon.com/xes/lifecycle.xesext"/>
+	<extension name="Time" prefix="time" uri="http://code.fluxicon.com/xes/time.xesext"/>
+	<extension name="Concept" prefix="concept" uri="http://code.fluxicon.com/xes/concept.xesext"/>
+	<extension name="Semantic" prefix="semantic" uri="http://code.fluxicon.com/xes/semantic.xesext"/>
+	<extension name="Organizational" prefix="org" uri="http://code.fluxicon.com/xes/org.xesext"/>
+	<global scope="trace">
+		<string key="concept:name" value="UNKNOWN"/>
+	</global>
+	<global scope="event">
+		<string key="concept:instance" value="UNKNOWN"/>
+		<string key="org:resource" value="UNKNOWN"/>
+		<date key="time:timestamp" value="1970-01-01T00:00:00.000+01:00"/>
+		<string key="lifecycle:transition" value="UNKNOWN"/>
+		<string key="concept:name" value="UNKNOWN"/>
+	</global>
+	<classifier name="Activity classifier" keys="concept:name lifecycle:transition"/>
+	<string key="concept:name" value="demo log"/>
+	<string key="lifecycle:model" value="standard"/>
+	<trace>
+		<string key="concept:name" value="orderline: 0"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="TotalAmount" value="99.9800"/>
+			<string key="Description" value="John Denver&apos;s life Album (15 CD premium pack)"/>
+			<string key="Quantity" value="1"/>
+			<string key="Price" value="99.9800"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 0"/>
+			<string key="org:resource" value="Mrs Van der Aalst"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-01T11:00:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+		<event>
+			<string key="concept:instance" value="delivery 2"/>
+			<string key="org:resource" value="Mrs Van der Aalst"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-21T18:43:00.000+01:00"/>
+			<string key="concept:name" value="Order Delivery"/>
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="orderline: 1"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="TotalAmount" value="24.8600"/>
+			<string key="Description" value="Children Music Collection 2010 (3 CD + 2 DVD holiday pack)"/>
+			<string key="Quantity" value="1"/>
+			<string key="Price" value="24.8600"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 0"/>
+			<string key="org:resource" value="Mrs Van der Aalst"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-01T11:00:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+		<event>
+			<string key="concept:instance" value="delivery 0"/>
+			<string key="org:resource" value="Anne"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-15T15:35:00.000+01:00"/>
+			<string key="concept:name" value="Order Delivery"/>
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="orderline: 10"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="TotalAmount" value="107.2500"/>
+			<string key="Description" value="Hardhat"/>
+			<string key="Quantity" value="5"/>
+			<string key="Price" value="21.4500"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 3"/>
+			<string key="org:resource" value="Boudewijn"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-02-04T19:35:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="orderline: 11"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="TotalAmount" value="35.3600"/>
+			<string key="Description" value="Wheel assortment (55 pieces)"/>
+			<string key="Quantity" value="1"/>
+			<string key="Price" value="35.3600"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 3"/>
+			<string key="org:resource" value="Boudewijn"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-02-04T19:35:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="orderline: 12"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="TotalAmount" value="54.4500"/>
+			<string key="Description" value="Destruction hammer"/>
+			<string key="Quantity" value="1"/>
+			<string key="Price" value="54.4500"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 3"/>
+			<string key="org:resource" value="Boudewijn"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-02-04T19:35:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="orderline: 2"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="TotalAmount" value="35.3600"/>
+			<string key="Description" value="Trance collection of the decade (4 CD mixed)"/>
+			<string key="Quantity" value="1"/>
+			<string key="Price" value="35.3600"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 0"/>
+			<string key="org:resource" value="Mrs Van der Aalst"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-01T11:00:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+		<event>
+			<string key="concept:instance" value="delivery 1"/>
+			<string key="org:resource" value="Wil"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-17T15:03:00.000+01:00"/>
+			<string key="concept:name" value="Order Delivery"/>
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="orderline: 3"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="TotalAmount" value="419.9900"/>
+			<string key="Description" value="Lego Death Star (10188)"/>
+			<string key="Quantity" value="1"/>
+			<string key="Price" value="419.9900"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 1"/>
+			<string key="org:resource" value="Eric"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-12T16:45:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+		<event>
+			<string key="concept:instance" value="delivery 3"/>
+			<string key="org:resource" value="Eric"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-28T17:54:00.000+01:00"/>
+			<string key="concept:name" value="Order Delivery"/>
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="orderline: 4"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="TotalAmount" value="579.9900"/>
+			<string key="Description" value="Lego Ultimate Collector&apos;s Millennium Falcon (10179)"/>
+			<string key="Quantity" value="1"/>
+			<string key="Price" value="579.9900"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 1"/>
+			<string key="org:resource" value="Eric"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-12T16:45:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+		<event>
+			<string key="concept:instance" value="delivery 4"/>
+			<string key="org:resource" value="Eric"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-28T17:54:00.000+01:00"/>
+			<string key="concept:name" value="Order Delivery"/>
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="orderline: 5"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="TotalAmount" value="249.9900"/>
+			<string key="Description" value="Lego Republic Dropship with AT-OT Walker (10195)"/>
+			<string key="Quantity" value="1"/>
+			<string key="Price" value="249.9900"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 1"/>
+			<string key="org:resource" value="Eric"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-12T16:45:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+		<event>
+			<string key="concept:instance" value="delivery 5"/>
+			<string key="org:resource" value="Eric"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-28T17:54:00.000+01:00"/>
+			<string key="concept:name" value="Order Delivery"/>
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="orderline: 6"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="TotalAmount" value="159.9800"/>
+			<string key="Description" value="Hiking shoes size 28"/>
+			<string key="Quantity" value="2"/>
+			<string key="Price" value="79.9900"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 2"/>
+			<string key="org:resource" value="Mrs Fletcher"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-24T09:00:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+		<event>
+			<string key="concept:instance" value="delivery 6"/>
+			<string key="org:resource" value="Mrs Fletcher"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-02-01T11:03:00.000+01:00"/>
+			<string key="concept:name" value="Order Delivery"/>
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="orderline: 7"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="TotalAmount" value="24.9500"/>
+			<string key="Description" value="Pink sun glasses"/>
+			<string key="Quantity" value="1"/>
+			<string key="Price" value="24.9500"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 2"/>
+			<string key="org:resource" value="Mrs Fletcher"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-24T09:00:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+		<event>
+			<string key="concept:instance" value="delivery 7"/>
+			<string key="org:resource" value="Mrs Fletcher"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-02-05T14:07:00.000+01:00"/>
+			<string key="concept:name" value="Order Delivery"/>
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="orderline: 8"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="TotalAmount" value="159.9500"/>
+			<string key="Description" value="Comfort IV Child carrier"/>
+			<string key="Quantity" value="1"/>
+			<string key="Price" value="159.9500"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 2"/>
+			<string key="org:resource" value="Mrs Fletcher"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-24T09:00:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="orderline: 9"/>
+		<string key="OrderLine_Details" value="EMPTY">
+			<string key="Description" value="Bike helmet &quot;Dora the Explorer&quot;-edition"/>
+			<string key="TotalAmount" value="19.9500"/>
+			<string key="Quantity" value="1"/>
+			<string key="Price" value="19.9500"/>
+		</string>
+		<event>
+			<string key="concept:instance" value="order 2"/>
+			<string key="org:resource" value="Mrs Fletcher"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-01-24T09:00:00.000+01:00"/>
+			<string key="concept:name" value="Order Create"/>
+		</event>
+		<event>
+			<string key="concept:instance" value="delivery 8"/>
+			<string key="org:resource" value="Mrs Fletcher"/>
+			<string key="lifecycle:transition" value="complete"/>
+			<date key="time:timestamp" value="2010-02-05T14:07:00.000+01:00"/>
+			<string key="concept:name" value="Order Delivery"/>
+		</event>
+	</trace>
+</log>
