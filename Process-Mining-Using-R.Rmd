@@ -17,42 +17,57 @@ knitr::opts_chunk$set(
 ### 1. Required packages:
 
 * [bupaR]: Business Process Analysis in R
-* []:
+* [xesreadR]: Read and Write XES Files (attention very slow with large xes files)
+* [eventdataR]: Event Data Repository (examples of event logs)
+* [edeaR]: Exploratory and Descriptive Event-Based Data Analysis
+* [processmapR]: Construct Process Maps Using Event Data
+* [processmonitR]: Building Process Monitoring Dashboards
 
 ### 2. Key terms
  * Business Process Mining
  * Process Map
- * Petri Net
+ * Directed graph
  * 
 
 ### 3. Useful Links
  * <http://www.processmining.org/book/start>
  * <https://en.wikipedia.org/wiki/Process_mining>
  * <https://www.bupar.net>
+ * <http://www.promtools.org/doku.php>
+ * XES file format: <http://xes-standard.org/>
  
 ## 4. Introduction
 
+In addition to the oral and face to face workshops, interviews with the users the Business Process Mining (BPM) is statistical and scientific approach to analyse and automatically generate process models. The results of the analysis can include different performance indicators and measures. Generated process models allow you to identify complieance and performance issues in the current process.  
+BPM uses the event or transaction log files generated in the operational systems (ERP,CRM, workflows, etc), so this data must be available.
+The industry accepted event log file format is called XES (Extensible Event Stream).
+
+
 
 ### 5. Load the libraries
-Let's ²²first load the libraries.
+Let's first load the libraries.
 ```{r loading packages, message=FALSE, warning=FALSE}
-library()
+library(bupaR)
+library(processmapR)
+library(xesreadR)
+library(eventdataR)
+library(edeaR)
+library(processmonitR)
 ```
 
 ### 6. Loading and checking the data
 
-Load and check the datasets.
-Dataset1:
- * 
- * 
- 
+ To create an event log from XES file I will use read_xes() from xesreadR package.
+ bupaR package expects that each event has the following attributes:
+ 1. Case ID
+ 2. Activity label
+ 3. Activity instance id
+ 4. Timestemp
+ 5. Lifecycle status
+ 6. Resource
 ```{r load the data and pre-process them}
-# Loading data from Rds file
-load("data/anomaly_detection.Rds")
-
-# Checking if there are any NAs:
-anyNA(river_nitrate)
-anyNA(wine)
+# Loading data from xes file
+event_log <- read_xes(xesfile = file.choose(), validate = FALSE)
 
 ```
 
