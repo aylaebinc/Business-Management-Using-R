@@ -22,12 +22,12 @@ knitr::opts_chunk$set(
 * [edeaR]: Exploratory and Descriptive Event-Based Data Analysis
 * [processmapR]: Construct Process Maps Using Event Data
 * [processmonitR]: Building Process Monitoring Dashboards
+* [processanimateR]: Process Map Token Replay Animation
 
 ### 2. Key terms
  * Business Process Mining
  * Process Map
  * Directed graph
- * 
 
 ### 3. Useful Links
  * <http://www.processmining.org/book/start>
@@ -38,8 +38,12 @@ knitr::opts_chunk$set(
  
 ## 4. Introduction
 
-In addition to the oral and face to face workshops, interviews with the users the Business Process Mining (BPM) is statistical and scientific approach to analyse and automatically generate process models. The results of the analysis can include different performance indicators and measures. Generated process models allow you to identify complieance and performance issues in the current process.  
-BPM uses the event or transaction log files generated in the operational systems (ERP,CRM, workflows, etc), so this data must be available.
+In addition to the oral and face to face workshops, interviews with the users the Business Process Mining (BPM) is statistical and scientific approach to analyses and automatically generate process models. And this is an important aspect of the process mining.
+By analyzing the event log the system builds the model for us, so no manual model creation.
+This is so-called "play in", inferring a process model from the even log data.
+We can go in the opposite direction ("play out") and build event data from a process model.
+The results of the analysis can include different performance indicators and measures. Generated process models allow you to identify compliance and performance issues in the current process. 
+BPM uses the event or transaction log files generated in the operational systems (ERP,CRM, work flows, etc), so this data must be available.
 The industry accepted event log file format is called XES (Extensible Event Stream).
 
 
@@ -53,6 +57,7 @@ library(xesreadR)
 library(eventdataR)
 library(edeaR)
 library(processmonitR)
+library(processanimateR)
 ```
 
 ### 6. Loading and checking the data
@@ -62,19 +67,106 @@ library(processmonitR)
  1. Case ID
  2. Activity label
  3. Activity instance id
- 4. Timestemp
+ 4. Timestamp
  5. Lifecycle status
  6. Resource
-```{r load the data and pre-process them}
+```{r load the event data and get summary statistics}
 # Loading data from xes file
 event_log <- read_xes(xesfile = file.choose(), validate = FALSE)
 
+# an object of class eventlog has been created
+# To see general event statistics execute summary() 
+summary(event_log)
 ```
 
-### 7. Topic 1
+### 7. Preprocessing event data
+The package permits various preprocessing operations on the event data:
+ * Filters by event, activity, resource
+ * Wrangling: grouping, add new variables (mutate), selecting, sorting, etc
+ 
+
+### 8. Exploring event data
+
+There are three perspectives along which we can perform exploratory analysis of the event data:
+ 1. Time
+ 2. Organizational
+ 3. Process Map
+ 
+
+###  8.1 Time Perspective
+
+```{r}
+# Idle time
+event_log %>%
+    idle_time("resource", units = "days") %>%
+    plot()
+
+# Processing time
+event_log %>% 
+    processing_time("activity") %>%
+    plot
+
+# Throughput time
+event_log %>%
+    throughput_time("log") %>%
+    plot()
+```
+
+###  8.2 Organizational Perspective
+```{r}
+# Resource frequency
+event_log %>%
+    resource_frequency("resource")
+
+# Resource involvement
+event_log %>%
+    resource_involvement("resource") %>% plot
+
+# Resource specialization
+event_log %>%
+    resource_specialisation("resource")
+```
+
+### 8.3 Process Map
+
+To generate a process map use process_map() function. This versatile function can generate process maps with different metrics:
+ 1. Frequency (frequencies of activities and flows): absolute, relative
+ 2. Performance (focusing on processing time of activities): you can specify specify the function min, max, mean, median, etc. and in addition the time unit to be used. 
+ 
+```{r}
+# default process map with frequency as a metric displayed
+process_map(eventlog = event_log)
+
+# If the map is to large you can collapse some of its activities into one:
+event_log %>%
+    act_unite(Collapsed_Activity = c("Discuss Results","Check-out")) %>%
+    process_map()
+
+# process map with the performance metrics
+event_log %>%
+    process_map(performance(mean, "hours"))
+```
+
+To see the dynamics of how tokens move along the process map use animate_process() function from processanimateR package:
+```{r}
+animate_process(event_log)
+```
 
 
-### 8. Topic 2
+### 9. Dashboards and Precedence Matrix
 
+processmonitR package contains several shiny dashboards:
+ * performance_dashboard: to look at throughput time, processing time, idle time
+ * activity_dashboard: to look at activity frequency and presence
+ * rework_dashboard: to look at rework (selfloops, repetitions)
+ * resource_dashboard: to look at resource frequency, involvement, specialization
 
-### 9. Topic 3
+```{r}
+performance_dashboard(eventlog = event_log)
+
+# Precedence matrix
+precedence_matrix(eventlog = event_log,type = "absolute") %>% plot
+```
+
+### 10. Process Mining
+
