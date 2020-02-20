@@ -1,0 +1,65 @@
+---
+title: 'RFM: recency, frequency, monetary marketing analysis'
+author: "Illarion  Jabine"
+date: "20/02/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+### 1. Required packages:
+
+* [rfm]: Recency, Frequency and Monetary Value Analysis
+
+### 2. Key terms
+ * RFM analysis
+ * 
+ * 
+
+### 3. Useful Links
+ $ <>
+ 
+## 4. Introduction to RFM Analysis
+Recency, Frequency, and Monetary Value are popular metrics used to quantify customer transaction history.
+Recency is how recently the customer has purchases. Frequency is how often the customer purchases, and monetary value is the dollar value of the purchases. 
+RFM analysis classifies customers into groups according to their RFM measures.
+These classifications can be used to predict the customer behavior including the likelihood of responding to an offer, etc.
+
+
+### 5. Load the libraries
+Let's ²²first load the libraries.
+```{r loading packages, message=FALSE, warning=FALSE}
+library()
+```
+
+### 6. Loading and checking the data
+
+Load and check the datasets.
+Dataset1:
+ * 
+ * 
+ 
+```{r load the data and pre-process them}
+# Loading data from Rds file
+load("data/anomaly_detection.Rds")
+
+# Checking if there are any NAs:
+anyNA(river_nitrate)
+anyNA(wine)
+
+```
+
+### 7. Topic 1
+
+
+### 8. Topic 2
+
+
+### 9. Topic 3
