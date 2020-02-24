@@ -1,0 +1,77 @@
+---
+title: 'Customer Analytics usinf R'
+author: "Illarion  Jabine"
+date: "10/02/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+### 1. Required packages:
+
+* []: 
+* []:
+
+### 2. Key terms
+ * 
+ * 
+ * 
+
+### 3. Useful Links
+ $ Wharton Customer Analytics Initiative: <https://wcai.wharton.upenn.edu/>
+ 
+## 4. Introduction
+According to wikipedia:
+Customer analytics is a process by which data from customer behavior is used to help make key business decisions via market segmentation and predictive analytics. 
+This information is used by businesses for direct marketing, site selection, and customer relationship management.
+Customer Analytics can provide answer to some fundamental business questions, like:
+ 1. How can we group/segment our customers?
+ 2. What are the most profitable customer segments?
+ 3. What customers are likely to upgrade?
+ 4. How can we improve our marketing campaigns?
+ 5. What customers are most likely to leave?
+ 6. What products will customers want to buy next?
+ 7. How to upsell/crossell, and how to bundle our products?
+ 8. What are customers talking about our products or services?
+the list goes on....
+
+
+
+
+### 5. Load the libraries
+Let's first load the libraries.
+```{r loading packages, message=FALSE, warning=FALSE}
+library()
+```
+
+### 6. Loading and checking the data
+
+Load and check the datasets.
+Dataset1:
+ * 
+ * 
+ 
+```{r load the data and pre-process them}
+# Loading data from Rds file
+load("data/data.Rds")
+
+# Checking if there are any NAs:
+anyNA()
+
+
+```
+
+### 7. Topic 1
+
+
+### 8. Topic 2
+
+
+### 9. Topic 3
