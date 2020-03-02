@@ -13,21 +13,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-
-### 1. Required packages:
-
-* []: 
-* []:
-
-### 2. Key terms
- * 
- * 
- * 
-
-### 3. Useful Links
+### 1. Useful Links
  $ Wharton Customer Analytics Initiative: <https://wcai.wharton.upenn.edu/>
  
-## 4. Introduction
+## 2. Introduction
 
 According to wikipedia:
 Customer analytics is a process by which data from customer behavior is used to help make key business decisions via market segmentation and predictive analytics. 
