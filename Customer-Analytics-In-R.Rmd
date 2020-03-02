@@ -1,5 +1,5 @@
 ---
-title: 'Customer Analytics usinf R'
+title: 'Introduction: Customer Analytics usinf R'
 author: "Illarion  Jabine"
 date: "10/02/2020"
 output: html_document
