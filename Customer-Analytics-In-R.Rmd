@@ -59,35 +59,4 @@ Although such a division can be done differently, by no means is it the exhausti
 We can also add to the list above 4Ps of marketing: Price, Place, Product and Promotion and think what analytics methods can be applied to them.
 For example, what place to choose for a new shop?
 
-
-
-### 5. Load the libraries
-Let's first load the libraries.
-```{r loading packages, message=FALSE, warning=FALSE}
-library()
-```
-
-### 6. Loading and checking the data
-
-Load and check the datasets.
-Dataset1:
- * 
- * 
- 
-```{r load the data and pre-process them}
-# Loading data from Rds file
-load("data/data.Rds")
-
-# Checking if there are any NAs:
-anyNA()
-
-
-```
-
-### 7. Topic 1
-
-
-### 8. Topic 2
-
-
-### 9. Topic 3
+Each block from the customer analytics pipeline and its enabling R technology and methods will be discussed in separate text files that you can find in "Business-Management-Using-R" section of my site.
