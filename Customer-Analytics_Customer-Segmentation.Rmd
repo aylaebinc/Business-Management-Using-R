@@ -1,0 +1,131 @@
+---
+title: 'Customer Analytics: Customer Segmentation'
+author: "Illarion  Jabine"
+date: "28/02/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+### 1. Required packages:
+
+* [factoextra]: Extract and visualize the results of multivariate data analyses
+* [dbscan]: Density Based Clustering of Applications with Noise (DBSCAN) and
+        Related Algorithms: optics() and dbscan()
+* [fpc]: dbscan()
+* [cluster]: clara() - Partitional , agnes() - Linkage
+* [ClusterR]: centroid-based (k-means, mini-batch-kmeans, k-medoids) and distribution-based (GMM) clustering algorithms
+* [mclust]: mstep(), estep(), hc() - Model-based
+* [kernlab]: specc() - Spectral methods
+* [HDclassif]: hddc() - Based on subspaces
+* [mvtnorm]: Multivariate Normal and t Distributions
+* [tidyverse]: data manipulation and visualization
+
+### 2. Key terms
+ * Clustering
+ * Distance
+ * Centroid
+
+## 3. Useful Links
+ $ <https://en.wikipedia.org/wiki/Cluster_analysis>
+ 
+ 
+## 4. Introduction
+
+Clustering is a process of grouping together observations that are similar to each other and differ from objects belonging to other groups or clusters.
+Clustering can reveal some hidden structures in the data and allow to extract information from unlabeled data. 
+As there are no label attributes exist in the input dataset, clustering is unsupervised machine learning.
+It is widely used in different domains, the most obvious one is customer segmentation, i.e. finding out customers with similar buying behavior.
+The similarity between observations can be defined using different metrics.
+For example centroid-based clustering uses a distance between two points in multi-dimensional space as a measure of similarity, i.e the shorter the distance the more similar two points are. Clustering can be compared to compressing or the vertical dimensionality reduction where we reduce the number of records to several groups or clusters.
+Clustering algorithms discussed here are exclusive clustering, which means that each object is assigned to one and only one cluster.
+Academic sources (as always I have used <https://scholar.google.com>) use different taxonomy of clustering methods (Rodriguez, M.Z. et al, 2019. Clustering algorithms: A comparative approach.).
+I like the one from here <https://cran.r-project.org/web/packages/ClusterR/vignettes/the_clusterR_package.html>:
+ 1. Connectivity-based clustering: hierarchical clustering
+ 2. Centroid-based clustering: k-Means, k-Medoids, x-Means
+ 3. Density-based clustering: DBSCAN, OPTICS 
+ 4. Distribution-based clustering: Gaussian mixture models (Expectation Maximization Clustering)
+ etc....
+Clustering is huge research topic, here I will try to keep it simple and practical. 
+
+
+### 5. Load the libraries
+Let's first load the libraries.
+```{r loading packages, message=FALSE, warning=FALSE}
+library(factoextra)
+library(tidyverse)
+library(mvtnorm)
+library(cluster)
+library(dbscan)
+
+# Let's set seed
+set.seed(123)
+```
+
+### 6. Generating input dataset
+
+I will not use the iris dataset here :). Rather I will artificially generate data using rmvnorm() function from mvtnorm package.
+
+
+```{r}
+
+# Function to generate the multivariate normal distribution with mean equal to cluster_center and covariance matrix sigma.
+generate_cluster <- function(n, cluster_center, sigma, cluster_label){
+        df <- data.frame(rmvnorm(n, mean = cluster_center, sigma = sigma))
+        df$cluster <- cluster_label
+        df
+}
+
+# Cluster 1
+n <- 50
+# Cluster Center
+cluster_center <- c(1, 1, 1)
+# covariance matrix
+sigma <- matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 1), nrow = 3)
+cluster1 <-  generate_cluster(n, cluster_center, sigma, 1)
+
+
+# Cluster 2
+# Cluster Center is different, and covariance matrix is the same
+cluster_center <- c(6, 6, 6)
+cluster2 <-  generate_cluster(n, cluster_center, sigma, 2)
+
+# Cluster 3
+# Cluster Center  and covariance matrix are different
+cluster_center <- c(3, 3, 4)
+sigma <- matrix(c(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5), nrow = 3)
+cluster3 <-  generate_cluster(n, cluster_center, sigma, 3)
+
+# Bind rows from all 3 cluster dataframes
+data <- bind_rows(cluster1,cluster2,cluster3)
+
+data$cluster <- factor(data$cluster)
+
+data %>% ggplot(aes(X1,X2,color = cluster)) +
+geom_point()
+
+
+```
+
+### 7. Connectivity-based clustering
+
+
+### 8. Centroid-based clustering
+
+
+### 9. Density-based clustering
+
+### 10. Distribution-based clustering
+
+
+
+Some more useful links and references:
+
+$ <https://www.r-bloggers.com/generate-datasets-to-understand-some-clustering-algorithms-behavior/>
