@@ -40,19 +40,30 @@ knitr::opts_chunk$set(
 ## 4. Introduction
 
 Clustering is a process of grouping together observations that are similar to each other and differ from objects belonging to other groups or clusters.
+Wikipedia gives this definition:
+Cluster analysis or clustering is the task of grouping a set of objects in such a way that objects in the same group (called a cluster) are more similar (in some sense) to each other than to those in other groups (clusters). Popular notions of clusters include groups with small distances between cluster members, dense areas of the data space, intervals or particular statistical distributions (source wikipedia).
 Clustering can reveal some hidden structures in the data and allow to extract information from unlabeled data. 
-As there are no label attributes exist in the input dataset, clustering is unsupervised machine learning.
-It is widely used in different domains, the most obvious one is customer segmentation, i.e. finding out customers with similar buying behavior.
+As there are no label attributes exist in the input dataset, clustering is unsupervised machine learning. It is an iterative process of knowledge discovery of trial and failure.
+It is widely used in different domains, the most obvious one is customer segmentation, i.e. finding out customers with similar buying behavior and to partition the general population of consumers into market segments.
 The similarity between observations can be defined using different metrics.
-For example centroid-based clustering uses a distance between two points in multi-dimensional space as a measure of similarity, i.e the shorter the distance the more similar two points are. Clustering can be compared to compressing or the vertical dimensionality reduction where we reduce the number of records to several groups or clusters.
-Clustering algorithms discussed here are exclusive clustering, which means that each object is assigned to one and only one cluster.
+For example centroid-based clustering uses a distance between two points in multi-dimensional space as a measure of similarity, i.e the shorter the distance the more similar two points are. The proximity measure has a dissimilarity interpretation so larger proximity values correspond to more dissimilar objects.
+Clustering can be compared to compressing or the vertical dimensionality reduction where we reduce the number of records to several groups or clusters.
 Academic sources (as always I have used <https://scholar.google.com>) use different taxonomy of clustering methods (Rodriguez, M.Z. et al, 2019. Clustering algorithms: A comparative approach.).
-I like the one from here <https://cran.r-project.org/web/packages/ClusterR/vignettes/the_clusterR_package.html>:
+On a very high level clustering approaches can be divided into the following groups:
  1. Connectivity-based clustering: hierarchical clustering
  2. Centroid-based clustering: k-Means, k-Medoids, x-Means
  3. Density-based clustering: DBSCAN, OPTICS 
  4. Distribution-based clustering: Gaussian mixture models (Expectation Maximization Clustering)
  etc....
+There are other ways to distinguish clustering.
+
+Hard or soft clustering.
+
+In non-fuzzy clustering (also known as hard clustering), data is divided into distinct clusters, where each data point can only belong to exactly one cluster. In fuzzy clustering, data points can potentially belong to multiple clusters. For example, an apple can be red or green (hard clustering), but an apple can also be red and green (fuzzy clustering). In this case the degree of apple color serves as a variable degree of membership in each of the clusters. In general in hard clustering an element either belongs to a cluster or not, whereas in soft clustering clusters may overlap and an element can belong to several clusters.
+Another grouping of clustering methodes is whether it is monothetic or polythetic.
+Monothetic is when cluster elements share a common, particular property or attribute, e.g. people with sertain age.
+Polythetic: where cluster members are similar to each other as measured by a distance but without one particular distinguishing attribute or value.
+Another classification of the clustering methhods is flat or hierarchical. 
 Clustering is huge research topic, here I will try to keep it simple and practical. 
 
 
@@ -116,6 +127,80 @@ geom_point()
 
 ### 7. Connectivity-based clustering
 
+Comparing to k-means clustering where we have to specify the number of cluster beforehand, hierarchical clustering does not require that. Hierarchical clustering creates a tree (aka dendrogram) or hierarchy of clusters where every cluster node contains child clusters. 
+Basically there is no universal answer of how many clusters exist in the data, it depends on your type of analysis and level of granularity where you want to decend.
+The researcher depending on his desired level of fine granularity can select any level of clusters he or she wants from this cluster tree. 
+There are two strategies to hierarchical clustering:
+ * Agglomerative (bottom up, also known as AGNES: Agglomerative Nesting),
+ * Divisive (top down, also known as DIANA: Divise Analysis).
+Agglomerative executes the following logic: 
+ 1. Start by assigning each item to a cluster (singleton), so that if we have N items, we now have N clusters, each containing just one item. Let the distances (similarities) between the clusters the same as the distances (similarities) between the items they contain.
+ 2. Find the closest (most similar) pair of clusters and merge them into a single cluster, so that now we have one cluster less.
+ 3. Compute distances (similarities) between the new cluster and each of the old clusters.
+ 4. Repeat steps 2 and 3 until all items are clustered into K number of clusters.
+Top-down approach starts with all items in one mega cluster and then splits it recursively by using for example k-Means algorithm.
+Interesting point how the distance between the clusters (not a data point and centroid like in k-Means) is calculated in the hierarchical clustering. Here we need to calculat this distance in order to decide what two clusters merge together.
+There are several ways to calculate cluster distance measure:
+ 1. Single link: D(c1,c2) = min D(x1,x2) where x1 is in c1 and x2 is in c2.
+Here we take the distance between the closest elements in clusters, do it for all clusters and take the minimal of it to define what two clusters to merge together.
+ 2. Complete link: D(c1,c2) = max D(x1,x2) where x1 is in c1 and x2 is in c2.
+Here we take the distance between the farthest elements in clusters, do it for all clusters and take the minimal of it to define what two clusters to merge together.
+ 3. Average link:  D(c1,c2) = 1/L1norm(c1)*1/L1norm(c2) * sum(x1 in C1)sum(x2 in c2)D(x1,x2).
+Take the average of all pairwise distances, do it for all clusters and take the minimal of it to define what two clusters to merge together.
+ 4. Centroids: distance between centroids of two clusters.
+ 5. Ward's method.
+
+### 7.1. Hierarchical clustering in R
+
+Very important pre-processing operations for clustering is scaling and normalization of the dataset. We can do that by using scale() function:
+
+```{r scaling and centering data}
+# I will use only first 3 variables, 4th is our cluster that we will use later for validation
+
+data_scaled <- scale(data[,-4])
+
+```
+
+Now we can calculate distance matrix. by default the system uses euclidean distance, but there are other distances available (just type ?dist): "euclidean", "maximum", "manhattan", "canberra", "binary" or "minkowski".
+euclidean:
+Usual distance between the two vectors (2 norm aka L_2), sqrt(sum((x_i - y_i)^2)).
+
+```{r distance matrix}
+dist_matrix <- dist(x = data_scaled)
+
+```
+
+Let's first do agglomerative clustering.
+Now we can use the distance matrix in the hierarchical cluster analysis. I will use hclust() function from stats package and agnes() from cluster package.
+The way the hierarchical custrering algorith works follows the following logic:
+1. Calculat the distance between every pair of points and store it in a distance matrix.
+2. Assign every point in its own cluster.
+3. Merge the closest pairs of points based on the distances from the distance matrix. At this step the amount of clusters goes down by 1.
+4. Recomputes the distance between the new cluster and the old ones and stores them in a new distance matrix.
+5. Repeat steps 2 and 3 until all the clusters are merged into one single cluster.
+
+```{r agglomerative hierarchical clustering}
+
+# Compute with hclust() function
+cluster_hclust <- hclust(dist_matrix)
+
+# Compute with agnes() function
+cluster_agnes <- agnes(dist_matrix)
+
+# agnes() produces the agglomerative coefficient, which measures the amount of clustering structure found (closer to 1 => strong clustering structure)
+cluster_agnes$ac
+
+# To produce a dendogram use a generic function plot() 
+plot(cluster_hclust, cex = 0.5, hang = -1)
+
+# To see a dendogram produced by agnes() use pltree()
+pltree(cluster_agnes, cex = 0.5, hang = -1, main = "Dendrogram of agnes")
+
+
+sub_grp <- cutree(h_clust_res, k = 3)
+fviz_cluster(list(data = h_clust_res, cluster = sub_grp))
+```
+
 
 ### 8. Centroid-based clustering
 
@@ -127,5 +212,4 @@ geom_point()
 
 
 Some more useful links and references:
-
-$ <https://www.r-bloggers.com/generate-datasets-to-understand-some-clustering-algorithms-behavior/>
+ * https://uc-r.github.io/hc_clustering
