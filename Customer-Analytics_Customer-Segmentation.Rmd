@@ -197,8 +197,8 @@ plot(cluster_hclust, cex = 0.5, hang = -1)
 pltree(cluster_agnes, cex = 0.5, hang = -1, main = "Dendrogram of agnes")
 
 
-sub_grp <- cutree(h_clust_res, k = 3)
-fviz_cluster(list(data = h_clust_res, cluster = sub_grp))
+sub_grp <- cutree(cluster_hclust, k = 3)
+fviz_cluster(list(data = cluster_hclust, cluster = sub_grp))
 ```
 
 
