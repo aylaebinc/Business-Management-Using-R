@@ -34,9 +34,12 @@ knitr::opts_chunk$set(
  * Clustering
  * Distance
  * Centroid
+ * Medoid
+ * Norm
 
 ## 3. Useful Links
  $ <https://en.wikipedia.org/wiki/Cluster_analysis>
+ $ <https://en.wikipedia.org/wiki/Medoid>
  
  
 ## 4. Introduction
@@ -260,7 +263,7 @@ Another large group of clustering methods is based on centroids. It includes:
  * k-Means
  * x-Means
  * k-Medoids
-
+These methodes use partitioning technique (breaking the dataset up into groups) of clustering that clusters the data set of n objects into k clusters with k known a priori.
 Centroid is the center of a cluster. The centroid of a cluster can be one of the points in the cluster (the point which is part of the cluster itself), in this case it is called medoid and the clustering algorithm is called k-Medoids.
 Or otherwise it can be an imaginary point, not part of the cluster itself, and the clustering algorithm is called k-Means. 
 If we use Euclidean or Manhattan distance as a measure then the centroid represents the mean value of all the data points in the cluster, i.e. the center in the n-dimensional space.  
@@ -339,18 +342,8 @@ Now once we know k we can run k-Means:
 
 ```{r k-Means}
 # nstart parameter tries multiple initial configurations and reports on the best one, in our case 25 initial configurations.
-k4 <- kmeans(data_scaled, centers = 4, nstart = 25)
-k5 <- kmeans(data_scaled, centers = 5, nstart = 25)
-k6 <- kmeans(data_scaled, centers = 6, nstart = 25)
+cluster_kmeans <- kmeans(data_scaled, centers = 3, nstart = 25)
 
-# plots to compare
-p1 <- fviz_cluster(cluster_kmeans, geom = "point", data = data_scaled) + ggtitle("k = 3")
-p2 <- fviz_cluster(k4, geom = "point",  data = data_scaled) + ggtitle("k = 4")
-p3 <- fviz_cluster(k5, geom = "point",  data = data_scaled) + ggtitle("k = 5")
-p4 <- fviz_cluster(k6, geom = "point",  data = data_scaled) + ggtitle("k = 6")
-
-library(gridExtra)
-grid.arrange(p1, p2, p3, p4, nrow = 2) <- kmeans(data_scaled, centers = 3, nstart = 25)
 
 # We can view clustering results by using fviz_cluster() which will also automatically performs PCA and plots the data points according to the first two principal components that explain the majority of the variance 
 fviz_cluster(cluster_kmeans, data = data_scaled)
