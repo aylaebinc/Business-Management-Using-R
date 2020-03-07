@@ -91,6 +91,11 @@ set.seed(123)
 
 ## 6. Generating input dataset
 
+Most of the custering algorithms expect that the data are numerical.
+However, in sales and marketing we often have mixed data types, i.e. numerical and categorical. 
+What to do in this case? 
+The handling of nominal, ordinal, and (a)symmetric binary data is achieved by using the general dissimilarity coefficient of Gower (1971).
+For more info check daisy() function from cluster package.
 I will not use the iris dataset here :). Rather I will artificially generate data using rmvnorm() function from mvtnorm package.
 
 
@@ -325,7 +330,9 @@ fviz_nbclust(data_scaled, kmeans, method = "wss")
 ```
 
 2. Silhouette method 
-
+The Silhouette Coefficient is calculated using the mean intra-cluster distance (a) and the mean nearest-cluster distance (b) for each sample. The Silhouette Coefficient for a sample is (b - a) / max(a, b), where b is the distance between a sample and the nearest cluster that the sample is not a part of.
+Silhouette coefficient is computed over all samples and used as a metric to judge the number of clusters.
+The number of clusters with maximum silhouette value is the optimal one. This maximum is easier to visualize than the elbow bend.
 ```{r}
 fviz_nbclust(data_scaled, kmeans, method = "silhouette")
 ```
@@ -392,7 +399,31 @@ print(cluster_kmedoids)
 fviz_cluster(cluster_kmedoids, data = data_scaled)
 ```
 
-### 8.3 x-Means Algorithm
+
+### 8.3 CLARA (Clustering Large Applications)
+
+CLARA (Clustering Large Applications, Kaufman and Rousseeuw (1990)) is an extension to k-medoids methods to deal with data containing a large number of objects. Instead of finding medoids for the entire data set, CLARA considers a small sample of the data with fixed size (sampsize) and applies the PAM algorithm to generate an optimal set of medoids for the sample. CLARA repeats the sampling and clustering processes a pre-specified number of times in order to minimize the sampling bias. The final clustering results correspond to the set of medoids with the minimal cost.
+The logic of CLARA is as follows:
+1. Split randomly the data sets in multiple subsets with fixed size (sampsize) 
+2. Compute PAM algorithm on each subset and choose the corresponding k representative objects (medoids). Assign each observation of the entire data set to the closest medoid.
+3. Calculate the mean (or the sum) of the dissimilarities of the observations to their closest medoid. This is used as a measure of the goodness of the clustering.
+4. Retain the sub-data set for which the mean (or sum) is minimal. A further analysis is carried out on the final partition.
+
+Note: before runnig CLARA I have generated a data frame with one million points using method explained in section "6. Generating input dataset"
+```{r CLARA}
+cluster_clara <- clara(data_scaled, 3, samples = 50, pamLike = TRUE)
+
+# To Visualizing CLARA clusters
+fviz_cluster(cluster_clara,
+palette = c("#00AFBB", "#FC4E07"), # color palette
+ellipse.type = "t", # Concentration ellipse
+geom = "point", pointsize = 1,
+ggtheme = theme_classic()
+)
+```
+
+
+### 8.4 x-Means Algorithm
 
 x-Means algorithm published by Dan Pelleg and Andrew Moore tries to address k-Means limitations:
  1. Poor scalability
