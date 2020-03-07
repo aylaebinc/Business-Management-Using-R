@@ -37,6 +37,7 @@ knitr::opts_chunk$set(
  * Centroid
  * Medoid
  * Norm
+ * Density
 
 ## 3. Useful Links
  $ <https://scholar.google.com/scholar?q=clustering+methods+overview&hl=en>
@@ -135,7 +136,10 @@ geom_point()
 
 ## 7. Connectivity-based clustering
 
-Comparing to k-means clustering where we have to specify the number of cluster beforehand, hierarchical clustering does not require that. Hierarchical clustering creates a tree (aka dendrogram) or hierarchy of clusters where every cluster node contains child clusters. 
+Hierarchical algorithms create a hierarchical decomposition of database of points. The hierarchical decomposition is represented by a dendrogram, a  tree that iteratively splits database of points into smaller subsets until each subset consists of only one object. In such a hierarchy, each node of the tree represents a cluster of D. 
+The dendrogram can either be created from the leaves up to the root (agglomerative approach) or from the root down to the leaves (divisive approach) by merging or dividing clusters at each step (Ester et al, 1996). 
+In contrast to partitioning algorithms, hierarchical algorithms do not need k as an input.
+Hierarchical clustering creates a tree (aka dendrogram) or hierarchy of clusters where every cluster node contains child clusters. 
 There is no universal answer of how many clusters exist in the data, it depends on your type of analysis and level of granularity where you want to descend.
 The researcher depending on his desired level of fine granularity can select any level of clusters he or she wants from this cluster tree. 
 There are two strategies to hierarchical clustering:
@@ -429,20 +433,47 @@ cluster_xmeans
 ## 9. Density-based clustering
 
 Clustering methodes explained so far although being fast and intelegent enough might not achieve good results in some situations.
+Partitioning methods and hierarchical clustering are good at finding convex well separated clusters. Furthermore, they are affected by noise and outliers in the data. 
+The real data can contain clusters of different shapes and can come with noise and many outliers.
 For example, k-Means does not have a notion of an outlier, and therefore assigns all points to a cluster even if they do not belong in any. That causes a problem in anomaly detection domain. Another example where k-means might not work well is a cluster within a cluster.
 Density-based clustering address these limitations by locating regions of high density (so it works based on density of objects) and separating outliers (so they will not be assigned to any cluster).
 dbscan package used here contains a fast reimplementation of several density-based algorithms of the DBSCAN family for spatial data. 
 It includes the DBSCAN (density-based spatial clustering of applications with noise) and OPTICS (ordering points to identify the clustering structure) clustering algorithms HDBSCAN (hierarchical DBSCAN) and the LOF (local outlier factor) algorithm. 
+In DBSCAN the notion of cluster is defined as a maximal set of density-connected points.
+In brief, the DBSCAN works as follows. To find a cluster, DBSCAN starts with an arbitrary point p and retrieves all points density-reachable from p wrt. (with respect to) Eps and MinPts. If p is a core point, this procedure yields a cluster wrt. Eps and MinPts. If p is a border point, no points are density-reachable from p and DBSCAN visits its the next point of the database.
+I would highly recommend to read the article by Ester and Kriegel the creators of DBSCAN (KDD96-037_DBSCAN.pdf is available in "manuals" section of this repo).
+There are 2 R packages with dbscan algo: dbscan and fpc. I will use dbscan package here.
 
-```{r}
-
+Before running dbscan we have to determin the optimal eps value.
+To do that I will use kNNdist() from dbscan package. 
+kNNdist() calculats the k-nearest neighbor distances in a matrix of points. The plot can be used to help find a suitable value for the eps neighborhood for DBSCAN. Look for the knee in the plot.
+```{r optimal eps value}
+kNNdistplot(data_scaled, k =  5)
+abline(h = 0.6, lty = 2)
 ```
+eps = 0.6 looks just right.
 
+```{r DBSCAN}
+# DBSCAN requires 2 parameters: epsilon (“eps”) and minimum points (“MinPts”). The parameter eps defines the radius of neighborhood (epsilon-neighborhood) around a point x. The parameter MinPts is the minimum number of neighbors within “eps” radius.
+# DBSCAN estimates the density around each data point by counting the number of points in a user-specified eps-neighborhood and applies a used-specified minPts thresholds to identify core, border and noise points.
+
+# Compute DBSCAN using dbscan package
+cluster_dbscan <- dbscan(data_scaled, eps = .6, minPts = 5)
+
+# Cluster vector: cluster_dbscan$cluster
+
+# Plot the results
+fviz_cluster(cluster_dbscan, data_scaled, stand = FALSE, frame = FALSE, geom = "point")
+```
 
 
 ## 10. Distribution-based clustering
 
 
 
+
+
+
 Some more useful links and references:
  * https://uc-r.github.io/hc_clustering
+ * Ester, M., Kriegel, H.P., Sander, J. and Xu, X., 1996, August. A density-based algorithm for discovering clusters in large spatial databases with noise. In Kdd (Vol. 96, No. 34, pp. 226-231).
