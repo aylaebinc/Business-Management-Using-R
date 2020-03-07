@@ -459,7 +459,7 @@ eps = 0.6 looks just right.
 
 # Compute DBSCAN using dbscan package
 cluster_dbscan <- dbscan(data_scaled, eps = .6, minPts = 5)
-
+ 
 # Cluster vector: cluster_dbscan$cluster
 
 # Plot the results
