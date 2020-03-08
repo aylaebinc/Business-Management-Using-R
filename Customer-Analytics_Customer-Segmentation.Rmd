@@ -44,6 +44,7 @@ knitr::opts_chunk$set(
  $ <https://en.wikipedia.org/wiki/Cluster_analysis>
  $ <https://en.wikipedia.org/wiki/Medoid>
  $ <https://en.wikipedia.org/wiki/K-medoids>
+ $ <https://en.wikibooks.org/wiki/Category:Book:Data_Mining_Algorithms_In_R>
  
  
 ## 4. Introduction
@@ -273,6 +274,7 @@ sum(original_clusters == cluster_vector)
 
 Another large group of clustering methods is based on centroids. It includes:
  * k-Means
+ * CLARA (Clustering Large Applications)
  * x-Means
  * k-Medoids
 These methodes use partitioning technique (breaking the dataset up into groups) of clustering that clusters the data set of n objects into k clusters with k known a priori.
