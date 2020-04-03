@@ -38,7 +38,7 @@ knitr::opts_chunk$set(
  $ <https://www.crcpress.com/Time-Series-A-Data-Analysis-Approach-Using-R/Shumway-Stoffer/p/book/9780367221096>: Time Series: A Data Analysis Approach Using R by Robert Shumway, David Stoffer
  $ <https://github.com/joshuaulrich/xts>: Github of the xts package creator. 
  
-## 4. Introduction
+### 4. Introduction
 Forecasting is widely used statistical task in business that helps to predict the future as accurately as possible, given all of the information available, including historical data and knowledge of any future events that might impact the forecasts (Hyndman et al).
 Forecasting can be described as a process of predicting or estimating how the sequence of observations (collected at certain time intervals, regular or irregular) will continue into the future. This process uses past and present data and heavily relies on time series, trend or temporal (as opposed to cross-sectional data collected at a single point in time) analysis.  
 There are short/medium/long-term forecasts.
