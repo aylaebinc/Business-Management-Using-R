@@ -39,7 +39,9 @@ knitr::opts_chunk$set(
  $ <https://github.com/joshuaulrich/xts>: Github of the xts package creator. 
  
 ### 4. Introduction
-Forecasting is widely used statistical task in business that helps to predict the future as accurately as possible, given all of the information available, including historical data and knowledge of any future events that might impact the forecasts (Hyndman et al).
+ The main objective of this exercise is to build the robust and flexible sales forecasting process for on-line distribution business. For this purpose as a data source the detailed extract of sales transactions for several years and product hierarchy will be used. I will try to build detailed and aggregated forecasts using different approaches.
+ 
+ Forecasting is widely used statistical task in business that helps to predict the future as accurately as possible, given all of the information available, including historical data and knowledge of any future events that might impact the forecasts (Hyndman et al).
 Forecasting can be described as a process of predicting or estimating how the sequence of observations (collected at certain time intervals, regular or irregular) will continue into the future. This process uses past and present data and heavily relies on time series, trend or temporal (as opposed to cross-sectional data collected at a single point in time) analysis.  
 There are short/medium/long-term forecasts.
 Risk is central to forecasting and indicate the degree of uncertainty or accuracy attached to forecasts. Some things like electricity consumption can naturally be easier to forecast than others (stock price).
@@ -60,16 +62,16 @@ It can be reasonable to assume that some aspects of the past patterns will conti
 
 According to Hyndman and Athanasopoulos the forecasting process can be divided into 5 major steps (steps 3 to 5 will be covered in separate manuals):
 
- 1. Problem definition
+5.1. Problem definition
   This step requires an understanding of the way the forecasts will be used, who requires the forecasts, and how the forecasting function fits within the organisation. At this stage the granularity of the forecasts are defined, e.g. every product/outlet line, or for groups of products/outlets, weekly or monthly data. It is also necessary to consider the forecasting horizon. How frequently are forecasts required? Frequent forecasts can be done using an automated system.
   
- 2. Gathering information
+5.2. Gathering information
   A large part of a forecaster’s time can be spent in locating and collating the available data prior to developing suitable forecasting methods. The data may include sales records of a company, the historical demand for a product, or the unemployment rate for a geographic region.
   
- 3. Exploratory analysis
+5.3. Exploratory analysis
   As Hyndman et al argue always start by graphing the data. The graphical representation allows quickly to see patterns in the data. With a graph one can easily spot significant trends, assess if seasonality is important or find a presence of business cycles.
   
- 4. Choosing and fitting models
+5.4. Choosing and fitting models
 The simplest time series forecasting model uses only information on the variable to be forecast, and make no attempt to discover other factors that affect its behaviour. Therefore they will extrapolate trend and seasonal patterns, but they ignore all other information (Hyndman et al).
 Example can be a time series model for forecasting where prediction of the future is based on past values of a variable, but not on external variables which may affect the system: y(t) = f(y(t-1),y(t-2),...) + e
 Explanatory model on the contrary helps explain what causes the variation in the variable by including other variables (predictor variables) and building the relationship between them. Example can be a regression model: y = f(x) + e. An explanatory model is useful because it incorporates information about other variables, rather than only historical values of the variable to be forecast.
@@ -81,5 +83,5 @@ The major types of models include:
  5. Hierarchical forecasting
  6. Neural networks and vector autoregression
 
- 5. Using and evaluating a forecasting model
+5.5. Using and evaluating a forecasting model
  Once a model has been selected and its parameters estimated, the model is used to make forecasts.
