@@ -1,0 +1,293 @@
+---
+title: "Forecasting and Time Series Analysis Using R"
+author: "Illarion  Jabine"
+date: "3/4/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+### 1. Required packages:
+
+* forecast: Methods and tools for displaying and analysing univariate time series forecasts including exponential smoothing via state space models and automatic ARIMA modelling.
+* xts: Extensible time series class that provides uniform handling of many R time series classes by extending zoo.
+* astsa: Applied Statistical Time Series Analysis
+* corrplot: A graphical display of a correlation matrix or general matrix. It also contains some algorithms to do matrix reordering.
+* PerformanceAnalytics: Econometric Tools for Performance and Risk Analysis
+* TTR: Technical Trading Rules
+
+
+### 2. Key terms
+ * Forecast 
+ * Time Series
+ * Forecasting Steps
+
+### 3. Useful Links & books
+ $ <https://cran.r-project.org/web/views/TimeSeries.html>: CRAN Task View: Time Series Analysis
+ $ <https://otexts.com/fpp2/>: Forecasting: Principles and Practice by Rob J Hyndman and George Athanasopoulos
+ $ <https://www.stat.pitt.edu/stoffer/tsda/>
+ $ <https://www.crcpress.com/Time-Series-A-Data-Analysis-Approach-Using-R/Shumway-Stoffer/p/book/9780367221096>: Time Series: A Data Analysis Approach Using R by Robert Shumway, David Stoffer
+ $ <https://github.com/joshuaulrich/xts>: Github of the xts package creator. 
+ 
+### 4. Introduction
+
+ The first thing in forecasting project is to set up our time series in R by loading the data and creating a xts object. After that explaratory analysis can be started. Visual analytics enable to spot patterns, unusual observations, changes over time, and relationships between variables. Then all these observations must be incorporated into the forecasting methods.
+
+
+### 5. Load the libraries
+Let's first load the libraries.
+```{r loading packages, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(xts)
+library(corrplot)
+library(forecast)
+
+```
+
+### 6. Loading and checking the data
+
+ 6.1 Load and check the datasets.
+  Dataset1: transactions.csv: detailed daily sales transactions including customer   information, product, amout and sales chanel.
+  Dataset2: articles.csv: product hierarchy.
+ 
+```{r load the data and pre-process them}
+# Loading data from Rds file
+transactions <- read_csv("transactions.csv")
+articles <- read_csv("articles.csv")
+
+# Checking if there are any NAs:
+apply(transactions,2,anyNA)
+apply(articles,2,anyNA)
+
+# There are 6 NAs in Client City transactions. 
+
+sum(is.na(transactions$client_city))
+
+# I need to add the product hierarchy to transactions dataset from articles dataset:
+
+transactions <- inner_join(transactions,articles,by = "article")
+# Majority of transactions belong to TRAIN category:
+barplot(table(transactions$article_category))
+# I will need the product hierarchy later on for botton-up and botton-down forecasting.
+
+```
+
+If your data is in the text file the xts object can be created with the following command:
+data <- read.zoo("file.csv", header = TRUE, sep = ",",FUN = as.Date)
+data <- as.xts(data)
+Note: the first column inn file.csv must contain the date.
+As I have already loaded the data into transactions data frame, I need to use a construct xts() to convert it into the time series xts object.
+Important, as xts is a matrix it must contain numeric values!
+As transactions data frame contains detailed daily sales transactions (with one particular day having many transactions) I need to aggregate them and calculate the daily turnover. Remember data points in a time series must be unique, so if daily frequency then only one point per day, etc. If I had an hourly or by minute points then we can have several different points per day.
+I will calculate several aggregates, widen them, i.e. increasing the number of columns and decreasing the number of rows and then convert them into xts time series.
+
+```{r, aggregate and widening the data frames}
+
+# 1. Let's create aggregated data frames
+aggregate_by_date <- transactions %>% group_by(date) %>% summarise(amount = sum(amount))
+aggregate_by_client_city <- transactions %>% group_by(date,client_city) %>% summarise(amount = sum(amount))
+aggregate_by_client_country <- transactions %>% group_by(date,client_country) %>% summarise(amount = sum(amount))
+aggregate_by_article <- transactions %>% group_by(date,article) %>% summarise(amount = sum(amount))
+aggregate_by_sales_chanel <- transactions %>% group_by(date,sales_chanel) %>% summarise(amount = sum(amount))
+aggregate_by_article_category <- transactions %>% group_by(date,article_category) %>% summarise(amount = sum(amount))
+
+#2. Now all aggregated data frames except the first one I need to widen, i.e. factor variables like client country or article stored in each individual row, will go to columns now.
+# To widen I will use pivot_wider() (replaced spread function) from tidyr package.
+# The result will be an individual time serie for each categorical variable:
+
+wide_by_client_city <- pivot_wider(aggregate_by_client_city,names_from = client_city,values_from = amount,values_fill = list(amount = 0))
+
+wide_by_client_country <- pivot_wider(aggregate_by_client_country,names_from = client_country,values_from = amount,values_fill = list(amount = 0))
+
+wide_by_article <- pivot_wider(aggregate_by_article,names_from = article,values_from = amount,values_fill = list(amount = 0))
+
+wide_by_sales_chanel <- pivot_wider(aggregate_by_sales_chanel,names_from = sales_chanel,values_from = amount,values_fill = list(amount = 0))
+
+wide_by_article_category <- pivot_wider(aggregate_by_article_category,names_from = article_category,values_from = amount,values_fill = list(amount = 0))
+
+wide_by_client_country <- pivot_wider(aggregate_by_client_country,names_from = client_country,values_from = amount,values_fill = list(amount = 0))
+
+```
+ 
+ 6.2 Creating time series xts object
+ 
+ An xts object extends the S3 class zoo from the package of the same name. It is a special class of object to handle time series.
+xts object contains the time index and the matrix with actual data. So, it is a matrix with associated times for each observation.
+The index is a time object: Date,POSIX Time,timeDate, chron
+
+```{r creating xts time series objects}
+ts_global <- xts(aggregate_by_date[-1], order.by = as.Date(aggregate_by_date$date))
+ts_client_city <- xts(wide_by_client_city[-1], order.by = as.Date(wide_by_client_city$date))
+ts_client_country <- xts(wide_by_client_country[-1], order.by = as.Date(wide_by_client_country$date))
+ts_article <- xts(wide_by_article[-1], order.by = as.Date(wide_by_article$date))
+ts_sales_chanel <- xts(wide_by_sales_chanel[-1], order.by = as.Date(wide_by_sales_chanel$date))
+ts_article_category <- xts(wide_by_article_category[-1], order.by = as.Date(wide_by_article_category$date))
+ts_client_country <- xts(wide_by_client_country[-1], order.by = as.Date(wide_by_client_country$date))
+
+```
+
+ 6.3 Working with time series
+ 
+As time series in its core is a matrix, we can apply various R commands and math operations: (+, -, *, /) 
+We can see index and data elements of the time series as well as summary, head and tails, etc...
+
+```{r}
+# index (time) element index() is used to extract the index a.k.a. times
+index(ts_global)
+
+# coredata() is used to extract the data component
+coredata(ts_global)
+
+# head and tail:
+head(ts_article_category)
+tail(ts_article_category)
+
+# summary:
+summary(ts_article_category)
+
+# Standard R functions also works with time series:
+colSums(ts_article_category)
+colMeans(ts_article_category)
+apply(ts_article_category,2,hist)
+
+mean(ts_global)
+sd(ts_global)
+var(ts_global)
+hist(ts_global)
+```
+xts object supports comprehensive subsetting. Subsetting via "[" methods offers the ability to specify dates by range
+
+```{r subsetting time series}
+# show me only january and february 2016 and "WEB" and "WER" sales channels:
+
+ts_sales_chanel["2016-01/2016-02",c("WEB","WER")]
+
+```
+xts package also offers other methods to manipulate time series including: merge, cbind, rbind, etc.
+
+### 7. Time series plots
+
+forecast package offers some time series visualisation functions, but unfortunately they only work with the standard R time series object of class "ts". So I have to convert my xts object into ts one. I will just do it for two time series.
+It is also important to note here that many standard R functions do not work with xts object, so you have to convert it first to ts object.
+Another important factor when creating a time series object is frequency.
+Frequency is determined by domain knowledge and here I assume it to be monthly, frequency = 12.
+The “frequency” is the number of observations before the seasonal pattern repeats.1 When using the ts() function in R, the following choices should be used:
+
+Data/frequency
+Annual/1
+Quarterly/4
+Monthly/12
+Weekly/52
+
+```{r converting to ts object}
+ts_class_global <- ts(aggregate_by_date[-1],frequency = 12)
+ts_class_article_category <- ts(wide_by_article_category[-1],frequency = 12)
+ts_class_sales_chanel <- ts(wide_by_sales_chanel[-1],frequency = 12)
+# let's check the frequency
+frequency(ts_class_global)
+
+```
+
+We can decompose time series into trend, seasonal and random components (again decomposing only works with time series of class ts):
+
+```{r decomposing time series}
+plot(decompose(ts_class_global))
+```
+
+7.1. Univariate time series analysis
+
+1. Standard statistical plots like histograms, box plots and qq plots can be produced for time series:
+
+```{r time series histograms and box plots}
+
+hist(ts_global)
+
+# boxplot() only works with ts class object:
+boxplot(ts_class_global, horizontal = TRUE, main = "Sales 2015 - 2019")
+abline(v = median(ts_class_global), col = "red")
+
+# QQ plot
+qqnorm(ts_class_global)
+qqline(ts_class_global, col = "red")
+```
+
+
+Time plots are great for visualising individual time series or exploring relationships between time series.
+
+2. A time plot is where observations are plotted against the time of observation, with consecutive observations joined by straight lines. To produce a simple time plot use plot() or plot.xts():
+```{r simple time plot}
+plot(ts_sales_chanel["2015","WEB"], main = "Sales", xlab = "Year", ylab = "Euro", col = "blue", lwd = 2)
+
+# We can add another time series to the same plot:
+lines(ts_sales_chanel["2015","WER"], col = "red", type = "h")
+
+# abline() does not work with xts time series, but work with ts class:
+
+plot(ts_class_global)
+abline(h = mean(ts_class_global), col = "red", lty = "dashed", lwd = 2)
+
+```
+
+autoplot() automatically produces an appropriate plot of whatever you pass to it in the first argument:
+
+```{r}
+autoplot(ts_global) +
+  ggtitle("Sales by Year") +
+  xlab("Year") +
+  ylab("Thousands")
+
+autoplot(ts_client_country["2018",c("BE","RU")]) +
+  ggtitle("Sales by Year") +
+  xlab("Year") +
+  ylab("Thousands")
+
+```
+
+
+3. A seasonal plot ggseasonplot() (only works with ts object) is similar to a time plot except that the data are plotted against the individual “seasons” in which the data were observed.
+
+```{r}
+ggseasonplot(ts_class_global, year.labels=TRUE, year.labels.left=TRUE) +
+  ylab("EUR") +
+  ggtitle("Seasonal plot: Sales")
+
+# polar plot
+ggseasonplot(ts_class_global, polar = TRUE) +
+  ylab("EUR") +
+  ggtitle("Seasonal plot: Sales")
+
+```
+
+4. Seasonal subseries plots (only works with ts object) - seasonal patterns is where the data for each season are collected together in separate mini time plots.
+
+```{r}
+ggsubseriesplot(ts_class_global) +
+  ylab("Eur") +
+  ggtitle("Seasonal subseries plot: sales")
+```
+
+7.2. Multivariate time series analysis
+
+```{r}
+barplot(ts_class_sales_chanel[,c("WEB","WER","GSB")], col = c("red","green","blue"))
+
+pairs(ts_class_sales_chanel[,c("WEB","WER","GSB")],lower.panel = NULL,main = "Sales Channel Correlation Scatterplots")
+
+cor_matrix <- cor(ts_class_sales_chanel)
+
+corrplot(cor_matrix,method = "number",
+type = "upper")
+
+corrplot(cor_matrix,method = "color",
+type = "upper")
+```
+
