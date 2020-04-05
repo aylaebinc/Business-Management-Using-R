@@ -24,6 +24,7 @@ knitr::opts_chunk$set(
 * corrplot: A graphical display of a correlation matrix or general matrix. It also contains some algorithms to do matrix reordering.
 * PerformanceAnalytics: Econometric Tools for Performance and Risk Analysis
 * TTR: Technical Trading Rules
+* GGally: Extension to 'ggplot2'
 
 
 ### 2. Key terms
@@ -50,6 +51,7 @@ library(tidyverse)
 library(xts)
 library(corrplot)
 library(forecast)
+library(GGally)
 
 ```
 
@@ -277,17 +279,65 @@ ggsubseriesplot(ts_class_global) +
 
 7.2. Multivariate time series analysis
 
-```{r}
-barplot(ts_class_sales_chanel[,c("WEB","WER","GSB")], col = c("red","green","blue"))
+Time series with higher dimensions also known as multivariate time series bring additional possibilities to identify how they interact and explore relationships between time series. For example, how changes in marketing budget bring changes in sales volume in one or several sales channels. If we have small number of time series we still can display them on one plot.
+However, if you have hundreds of dimensions it can quickly become impossible to plot them all on one single time series plot. To see the interaction between time series other techniques are used such as variance and covariance matrix, correlation plots or heatmaps, etc.
+We can visualize as many time series on one plot as we want. In my examples I am using standard R plotting functionality, using ggplot2 you can create more complex graphics:
 
+```{r 2 time series on one plot}
+plot(ts_sales_chanel$WEB["2017"], main = "WEB and WER 2017 sales", col = "red")
+lines(ts_sales_chanel$WER["2017"], col = "blue")
+axis(side = 4, at = pretty(ts_sales_chanel$WER["2017"]))
+legend(x = "right",
+       legend = c("WEB", "WER"),
+       col = c("red", "blue"),
+       lty = c(1, 1))
+```
+
+Or using autoplot() wrapper function for ggplot2:
+
+```{r autoplot}
+
+# On two separate plots
+autoplot(ts_sales_chanel["2017",c("WEB","WER")]) +
+  xlab("Year: 2017") + ylab("") +
+  ggtitle("WEB and WER 2017 Sales")
+
+# On one plot
+autoplot(ts_sales_chanel["2017",c("WEB","WER")], facets = FALSE) +
+  xlab("Year: 2017") + ylab("") +
+  ggtitle("WEB and WER 2017 Sales")
+
+```
+
+As we now analyzing multivariate time series we can plot one series against the other using scatterplots. Do not forget that a time series object is just enhanced data matrix, aware of time through tme index attached to it.
+To make it more interesting I will merge two multidimensial time series: ts_article_category and ts_sales_chanel using merge() function and produce a scatterplot, which can help us to visualise the relationship between the variables:
+
+```{r}
+ts_merged_article_sales_chanel <- merge(ts_article_category,ts_sales_chanel,join = 'inner')
+
+qplot(WEB,TRAIN,data = ts_merged_article_sales_chanel) +
+  ylab("TRAIN") +
+  xlab("WEB")
+```
+
+When there are several predictors, it is good to plot them against each other by using scatterplot matrices. Standard pairs() function can be used or more comprehensive ggpairs() from GGally package. The scatterplot matrix enables a quick view of the relationships between all pairs of variables.
+```{r}
 pairs(ts_class_sales_chanel[,c("WEB","WER","GSB")],lower.panel = NULL,main = "Sales Channel Correlation Scatterplots")
 
+ggpairs(as.data.frame(ts_class_sales_chanel[,c("WEB","WER","GSB")]))
+
+# We can calculate a correlation matrix
 cor_matrix <- cor(ts_class_sales_chanel)
 
+# And plot this matrix using corrplot() from corrplot package
 corrplot(cor_matrix,method = "number",
 type = "upper")
 
+# The same corrplot but in a form of color heat map 
 corrplot(cor_matrix,method = "color",
 type = "upper")
 ```
 
+7.3 Autocorrelation
+
+Autocorrelation is one of the fundamental ideas in time series analysis.
