@@ -50,12 +50,23 @@ According to Hyndman et al the predictability of an event depends on several fac
  2. how much data is available;
  3. whether the forecasts can affect the thing we are trying to forecast.
 Time series plays a fundamental role in forecasting. Time series can be defined as series of data observed over time. Anything that is observed sequentially over time is a time series. When forecasting time series data, the aim is to estimate how the sequence of observations will continue into the future.
-Time series can exhibit certain patterns:
+
+Time series can exhibit certain patterns.
  1. Trend: a pattern exists involving a long-term increase or decrease in
-the data
- 2. Seasonal: A periodic pattern exists due to the calendar, e.g. the quarter, month, or day of the week
- 3. Cyclic: A pattern exists where the data exhibits rises and falls that are not of fixed period (duration usually of at least 2 years)
-It can be reasonable to assume that some aspects of the past patterns will continue into the future with a certain degree of assumptions. Time series models used for forecasting include decomposition models, exponential smoothing models and ARIMA models.
+the data. Trend can be linear or non-linear.
+ 
+ 2. Seasonal: 
+ A periodic pattern exists due to the calendar, e.g. the quarter, month, or day of the week. 
+ In this case a time series is affected by seasonal factors such as the time of the year or the day of the week. Seasonality is always of a fixed and known frequency.
+Examples are numerous, demand for electricity can have a daily seasonality, whereas ice cream consumption fluctuates with yearly seasonality, i.e. much more consumed in the summer. Perhaps consumption of bread does not depend on callendar seasonality.
+Understanding of seasonality comes with the subject domain knowledge, because in different industries or market segments different seasonality may exist.
+ 
+ 3. Cyclic: 
+ A pattern exists where the data exhibits rises and falls that are not of fixed period or frequency (duration usually of at least 2 years). These fluctuations are also known as “business cycle”, because they believe it's due to economic conditions.
+ Do not confuse cycle with season, they are different. Cyclic is a fluctuation of not fixed frequency. If the frequency is constant and related to some aspect of the calendar, then the pattern is seasonal. Hyndman argues that the average length of cycles is longer than the length of a seasonal pattern, and the magnitudes of cycles tend to be more variable than the magnitudes of seasonal patterns.
+ 
+It can be reasonable to assume that some aspects of the past patterns will continue into the future with a certain degree of assumptions. Before choosing a time series model, we need to understand the time series patterns in the data and incorporate them into the model.
+Time series models used for forecasting include decomposition models, exponential smoothing models and ARIMA models.
 
 
 ### 5. Forecasting Steps
