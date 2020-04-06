@@ -211,7 +211,10 @@ plot(decompose(ts_class_global))
 
 ```{r time series histograms and box plots}
 
-hist(ts_global)
+hist(ts_global, main = "Sales Histogram", probability = TRUE)
+
+# Add a density line to the histogram
+lines(density(ts_global),col = "red", lwd = 2)
 
 # boxplot() only works with ts class object:
 boxplot(ts_class_global, horizontal = TRUE, main = "Sales 2015 - 2019")
@@ -315,13 +318,18 @@ To make it more interesting I will merge two multidimensial time series: ts_arti
 ```{r}
 ts_merged_article_sales_chanel <- merge(ts_article_category,ts_sales_chanel,join = 'inner')
 
-qplot(WEB,TRAIN,data = ts_merged_article_sales_chanel) +
+vis_plot <- qplot(WEB,TRAIN,data = ts_merged_article_sales_chanel) +
   ylab("TRAIN") +
   xlab("WEB")
+
+# We can add regression line as well
+vis_plot + geom_smooth(method = lm, se = FALSE)
 ```
 
 When there are several predictors, it is good to plot them against each other by using scatterplot matrices. Standard pairs() function can be used or more comprehensive ggpairs() from GGally package. The scatterplot matrix enables a quick view of the relationships between all pairs of variables.
+
 ```{r}
+# A convenient way to compare pairs of time seriesa. Pairs is a  facetted scatterplot of all pairs shown at once in a matrix format.
 pairs(ts_class_sales_chanel[,c("WEB","WER","GSB")],lower.panel = NULL,main = "Sales Channel Correlation Scatterplots")
 
 ggpairs(as.data.frame(ts_class_sales_chanel[,c("WEB","WER","GSB")]))
@@ -329,15 +337,52 @@ ggpairs(as.data.frame(ts_class_sales_chanel[,c("WEB","WER","GSB")]))
 # We can calculate a correlation matrix
 cor_matrix <- cor(ts_class_sales_chanel)
 
-# And plot this matrix using corrplot() from corrplot package
+# And plot this matrix using corrplot() from corrplot package. It allows to represent the correlations with numbers, symbols, colors etc.
 corrplot(cor_matrix,method = "number",
 type = "upper")
 
-# The same corrplot but in a form of color heat map 
+# The same corrplot but in a form of color heatmap 
 corrplot(cor_matrix,method = "color",
 type = "upper")
+
+# corrplot() offers some intellegent way to cluster matrix cells using hierarchical clustering:
+corrplot(cor_matrix,method = "color",
+type = "upper", order = "hclust")
+
 ```
 
 7.3 Autocorrelation
 
-Autocorrelation is one of the fundamental ideas in time series analysis.
+Autocorrelation (or self-correlation) is one of the fundamental ideas in time series analysis. Autocorrelation indicates the relationship between one point in the time series and points that come before it. Autocorrelation measures the linear relationship between lagged values of a time series.
+The autocorrelogram is a chart which indicates the correlation between points separated by various time lags. 
+By default, it displays the first 30 lags: the correlation between points n and n - 1 (lag 1), n and n - 2 (lag 2), n and n - 3 (lag 3) and so on up to 30. 
+The autocorrelogram shows how any point in the time series is related to its past and the significance of this relationship.The significance levels are given by 2 horizontal lines above and below 0.
+To produce autocorrelation chart run acf() function (or ggAcf() "nicer" ggplot2 wrapper function from forcast package), or you can calculate autocorrelation manually using standard R function cor():
+
+```{r}
+# lag 1 autocorrelation using cor():
+cor(ts_global[-length(ts_global)],ts_global[-1])
+
+# lag 2:
+cor(ts_global[-c(length(ts_global),length(ts_global)-1)],ts_global[-c(1,2)])
+
+# Or using acf() function, if you do not want to see teh plot set plot = FALSE:
+acf(ts_global,plot = FALSE)
+
+# To produce the autocorrelation chart:
+acf(ts_global)
+
+# or ggAcf()
+ggAcf(ts_global, lag.max = 50)
+
+
+```
+By looking at the autocorrelation plot you can tell a lot about properties and patterns (trend and seasonality) existing in the time series.
+Note that acf at lag-0 is always 1.
+In this example we have peaks at r7, r14, r21. Can we conclude that there is a seasonal pattern in the data repeating every 7 days?
+The dashed blue lines indicate whether the correlations are significantly different from 0, i.e. no autocorrelation at that lag.
+
+Hyndman et al point out the following properties of ACF:
+ 1. "When data have a trend, the autocorrelations for small lags tend to be large and positive because observations nearby in time are also nearby in size. So the ACF of trended time series tend to have positive values that slowly decrease as the lags increase."
+ 2. "When data are seasonal, the autocorrelations will be larger for the seasonal lags (at multiples of the seasonal frequency) than for other lags."
+ 3. "When data are both trended and seasonal, you see a combination of these effects."
