@@ -1,0 +1,190 @@
+---
+title: "Manipulating Time Series: Math, Functions, Merging etc..."
+author: "Illarion  Jabine"
+date: "9/4/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+### 1. Required packages:
+
+* xts: Extensible time series class that provides uniform handling of many R time series classes by extending zoo.
+
+
+### 2. Key terms
+ * TS subsetting 
+ * Time based queries
+ * Merging TS
+ * Rolling functions
+ * Apply functions by time
+
+### 3. Useful Links & books
+ $ <https://cran.r-project.org/web/views/TimeSeries.html>: CRAN Task View: Time Series Analysis
+ $ <https://www.iso.org/standard/40874.html>
+ $ <https://github.com/joshuaulrich/xts>: Github of the xts package creator. 
+ 
+### 4. Introduction
+
+In this manual I will cover different methods and approaches of how to work with xts time series objects. In particular math operations, time based queries, time series functions, merging, subsetting.
+
+### 5. Load the libraries
+Let's first load the libraries.
+```{r loading packages, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(xts)
+library(lubridate)
+
+```
+
+### 6. Loading and checking the data
+
+I will use the time series in xts format that have been created at the previous step (see my manual "2.Forecasting-Exploratory-Analysis.Rmd").
+For the conviniens I have saved all the time series objects as a RData file.
+Note: RDS files can store a single R object, and RData files can store multiple R objects.
+To save all time series objects use this command: save(ts_global,ts_article,ts_article_category,ts_client_city,ts_client_country,ts_sales_chanel, file = "time_series.RData"))
+
+ 
+```{r load the data from RData file}
+# Loading data from Rds file
+load("time_series.RData")
+
+plot(ts_article["2017",])
+
+```
+
+
+### 7. Time based queries
+
+xts supports R time based queries and ISO 8601:2004 standard. This standard defines representation of dates and times.
+xts object supports both standard R matrix subsetting and using character strings that adhere to the ISO-8601 standard:
+ * One and two sided intervals "2004" & "2001/2015"
+ * Truncated representation "201402/03"
+ * Time support "2014-02-22 08:30:00"
+ * Repeating intervals "T08:00/T09:00"
+What is also important is that all subsets preserve matrix (drop = FALSE) and order is also preserved.
+ 1. Time based queries
+```{r subsetting xts object}
+
+# April 2017
+plot(ts_global["2017"])
+
+# January 2018 to March:
+plot(ts_article["201801/03",c("SNCF","THALYS")])
+# or the same result: plot(ts_article["2018-01/2018-03",c("SNCF","THALYS")])
+
+
+# Select January 1, 2017 to February 15, 2017
+plot(ts_global["2017/2017-02-15"])
+
+# If time series has been captured per minute periodicity xts supports data time: YYYYMMDDTHHMM format
+
+# Let's genererate time index
+idx <- ymd_hms(c("2018-02-15 20:30:30","2018-02-15 20:31:00","2018-02-15 20:31:30","2018-02-15 20:32:00"))
+
+# Now generate the actual data
+x <- rnorm(4)
+
+# Construct xts object
+ts_x <- xts(x, order.by = idx)
+
+# Show observations done on 2018-02-15 at 20:31
+ts_x["2018-02-15T2031"]
+
+#Repeating intraday intervals
+
+ts_x["T20:31/T20:31"]
+
+# Extract all data between 7AM and 11AM
+ts_x["T07:00/T11:00"]
+
+```
+
+ 2. Information from a time series can be extracted using alternative extraction techniques.
+
+```{r}
+#Integer indexing
+ts_article[1:10,c("SNCF")]
+
+ts_global[c(2,4,6)]
+
+# Logical vectors using index() method
+ts_global[index(ts_global) > "2019-01-01" & index(ts_global) < "2019-01-05"]
+
+ts_article[index(ts_global) > "2019-01-01","SNCF"]
+
+```
+
+ 3. Update and replace elements in xts object
+It is easy to update values in xts object.
+To change individual observations located sporadically throughout a time series, integers or logical vectors can be used.
+
+```{r replacing values in xts objects}
+
+# Let's create a date index
+date_idx <- seq(as.Date("2020-03-01"), length = 50, by = "days")
+
+# and create a xts object
+ts_obj <- xts(1:50, order.by = date_idx)
+
+dates <- c("2020-04-15","2020-04-16")
+ts_obj[dates] <- NA
+
+ts_obj["2020-03-01"] <- 1000
+```
+
+
+ 4. Finding the first or last period of time
+Use standard head() and tail() or 2 similar xts functions with respect to time: first() and last().
+If you need to locate data by relative time, but instead of using an absolute offset, you use a relative time position. For example, the last 2 weeks of a series, or the first day of current month. 
+xts object is aware of time and supports relative time position by means of first() and last() methods.
+These two methods support the following character contexts:
+seconds,
+minutes,
+hours,
+days,
+weeks,
+months,
+quarters,
+years
+Let's extract relative observations from ts_global time series:
+
+```{r relative time extracts}
+
+# first 3 weeks
+first(ts_global, "3 weeks")
+
+# last two months of 2018
+plot(last(ts_global["2018"],"2 month"))
+
+# last quarter of 2017
+last_quarter_2017 <- last(ts_global["2017"],"1 quarters")
+
+# Extract all but the first 4 days of last quarter of 2017
+
+first(last_quarter_2017, "-4 days")
+
+```
+
+You can build complex chains and extract a very specific subset of observations by linking together multiple calls to first() and last().
+
+```{r}
+# Last 5 days of first week
+last(first(ts_global, '1 week'), '5 days') 
+
+# First three days of the second week
+first(last(first(ts_global, "2 weeks"), "1 week"), "3 days")
+
+```
+
+
+### 8. Time based queries
