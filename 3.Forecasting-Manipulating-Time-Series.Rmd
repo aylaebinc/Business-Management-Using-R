@@ -187,4 +187,41 @@ first(last(first(ts_global, "2 weeks"), "1 week"), "3 days")
 ```
 
 
-### 8. Time based queries
+### 8. Time series arithmetic
+
+xts object is a matrix, so most rules applicable to matrix operations are also applicable to xts object.
+Naturally, you can always add a column to your time series object, or perform other math operations.
+It is important to note that math operations are on the intersection of times, i.e. only these intersections will be used
+
+```{r}
+# adding a new column
+ts_article_category$New_Column <- ts_article_category$TRAIN * 2
+
+# Deleting the new column:
+ts_article_category$New_Column <- NULL
+
+ts_math <- first(ts_article["2018",c("SNCF","THALYS","EUROSTAR")],"1 month")
+
+# +,-,*,/
+
+# add 1000 element wise
+add <- ts_math + 1000
+
+# multiply all elements of the matrix by 10 
+multiply_10 <- ts_math * 10
+
+# divide one time series by another (the two TSs have the same time index)
+multiply_10/ts_math
+
+# If I have two time series but with slightly different time index then only intersections will be used:
+
+x <- xts(c(1,1,1),order.by = as.Date(c("2020-01-01","2020-01-02","2020-01-03")))
+y <- xts(c(2,2,2),order.by = as.Date(c("2020-01-01","2020-01-02","2020-01-04")))
+
+# Intersection of dates when x + y
+
+x + y
+```
+
+### 9. Merging time series
+
