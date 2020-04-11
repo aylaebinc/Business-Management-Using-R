@@ -35,7 +35,7 @@ knitr::opts_chunk$set(
  
 ### 4. Introduction
 
-In this manual I will cover different methods and approaches of how to work with xts time series objects. In particular math operations, time based queries, time series functions, merging, subsetting.
+In this manual I will cover different methods and approaches of how to work with xts time series objects. In particular math operations, time based queries, merging, subsetting.
 
 ### 5. Load the libraries
 Let's first load the libraries.
@@ -335,29 +335,3 @@ ts_nas1[c("2018-03-05","2018-04-12","2018-08-24"),]
 # as a percentage
 (ts_nas1[c("2018-03-05","2018-04-12","2018-08-24"),"amount_nas"] - ts_nas1[c("2018-03-05","2018-04-12","2018-08-24"),"amount"])/ts_nas1[c("2018-03-05","2018-04-12","2018-08-24"),"amount"]
 ```
-
-
-### 11. Leading/lagging time series and difference
-
-1. To lag (aka backshift operation, Lk notation) a series is another common modification for time series. Lagging lets you see observations like yesterday's value in the context of today.
-Note: lag() function from base R works slightly differently, i.e. zoo uses a convention for the sign of k in which negative values indicate lags and positive values indicate leads. In zoo lag(x, k = 1) will shift future values one step back in time.
-xts implements the exact opposite, i.e. for a positive k, the series will shift the last value in time one period forward.
-Note: To be 100% sure use lag.xts() function.
-
-```{r}
-
-x <- xts(1:10,Sys.Date() + 1:10)
-# Create a leading TS
-lead_x <- lag.xts(x, k = -1)
-
-# Create a lagging TS
-lag_x  <- lag.xts(x, k = 1)
-
-# Merge three TSs together
-cbind(lead_x,x,lag_x)
-
-```
-
-2. Time series difference
-
-diff() functions calculates the difference 
