@@ -218,10 +218,146 @@ multiply_10/ts_math
 x <- xts(c(1,1,1),order.by = as.Date(c("2020-01-01","2020-01-02","2020-01-03")))
 y <- xts(c(2,2,2),order.by = as.Date(c("2020-01-01","2020-01-02","2020-01-04")))
 
-# Intersection of dates when x + y
-
+# Intersection of dates when x + y or x * y (all operations are element wise):
 x + y
+(x + y) * y
 ```
 
 ### 9. Merging time series
 
+xts can handle merging new columns and rows into existing data. This is an important part of working with time series, that results in creating derived time series.
+It is critical to keep track of dates and times when doing this operation, and xts object allow to do that.
+
+In xts it is easy to join data by column and row. All results will be correctly ordered in time, regardless of original frequencies or date class.
+
+1. Joining by column 
+merge() function (== cbind()) takes one or more series and joins them by column.
+merge() takes three key arguments, merge(..., fill = NA, join = "inner"):
+ 1. ..., lets you pass in an arbitrary number of objects to combine.
+ 2. join, specifies how to join the series (like a relational database join) - having arguments such as inner or left.
+ We join on the time index
+ 3. The final argument for this exercise is fill, which specifies what to do with the new values in a series if there is missingness introduced as a result of the merge.
+
+```{r time series merging}
+ts_left <- merge(x, y, join = "left", fill = 0)
+ts_right <- merge(x, y, join = "right", fill = 0)
+ts_inner <- merge(x, y, join = "inner", fill = 0)
+
+merge(x, c(2, 3, 4))
+merge(x, 10)
+```
+
+2. Joining by row
+
+We can combin xts objects by row with rbind() method. The argument..., takes an arbitrary number of objects to bind.
+Note that the order of objects to bind does matter! Rows are inserted in time order and all rows in rbind() must have a time.
+Note that the number of columns must match !
+```{r time series row bind}
+
+rbind(x,y)
+
+#2020-01-01    1
+#2020-01-01    2
+#2020-01-02    1
+#2020-01-02    2
+#2020-01-03    1
+#2020-01-04    2
+
+
+rbind(y,x)
+
+#2020-01-01    2
+#2020-01-01    1
+#2020-01-02    2
+#2020-01-02    1
+#2020-01-03    1
+#2020-01-04    2
+```
+
+
+### 10. Handling missing values
+
+Time series can have missing values (NAs) which might be the result of a data omission or some mathematical or merge operation performed on a time series.
+
+xts and zoo packages have a variety of missing data handling functions.
+
+1. The basic operation to treat missing values is he last observation carried forward approach, or LOCF. It is implemented as na.locf() function.
+You can also apply next observation carried backward by setting fromLast = TRUE.
+
+```{r LOCF}
+# Let's create a test TS.
+dates <- seq(as.Date("2020-03-01"), length = 50, by = "days")
+ts_nas <- xts(1:50, order.by = dates)
+
+# assign NAs to 5th,6th and 10th elements:
+ts_nas[c(5:6,10)] <- NA 
+
+# Last observation carried forward. Fill missing values using the last observation
+na.locf(ts_nas)
+
+# Next observation carried backward. Fill missing values using the next observation
+na.locf(ts_nas,fromLast = TRUE)
+```
+
+2. Replace and remove NAs
+
+Other useful NAs manipulation functions include na.fill(), na.trim() and na.omit() from zoo package.
+
+
+```{r}
+# na.fill() replaces all NAs values in a time series
+z <- zoo(c(NA, 2, NA, 1, 4, 5, 2, NA))
+na.fill(z,999)
+# To remove NAs values at the beginning or end of the time series use na.trim()
+na.trim(z)
+# To remove all values use na.omit()
+na.omit(z)
+```
+
+3. NAs interpolation using na.approx()
+
+In a situation where a simple carry forward approach is not appropriate, simple linear interpolation between the index value points can be used. In xts it's  implemented with na.approx() function. 
+
+```{r}
+# let's take 2018 year from ts_global TS
+ts_nas1 <- ts_global["2018"]
+# Create a new column amount_nas by coping amount
+ts_nas1$amount_nas <- ts_nas1$amount
+# assign some NAs
+ts_nas1$amount_nas[c("2018-03-05","2018-04-12","2018-08-24")] <- NA
+
+# Interpolate NAs using linear approximation
+ts_nas1$amount_nas <- na.approx(ts_nas1$amount_nas)
+
+# validate results of linear approximation
+ts_nas1[c("2018-03-05","2018-04-12","2018-08-24"),]
+
+# as a percentage
+(ts_nas1[c("2018-03-05","2018-04-12","2018-08-24"),"amount_nas"] - ts_nas1[c("2018-03-05","2018-04-12","2018-08-24"),"amount"])/ts_nas1[c("2018-03-05","2018-04-12","2018-08-24"),"amount"]
+```
+
+
+### 11. Leading/lagging time series and difference
+
+1. To lag (aka backshift operation, Lk notation) a series is another common modification for time series. Lagging lets you see observations like yesterday's value in the context of today.
+Note: lag() function from base R works slightly differently, i.e. zoo uses a convention for the sign of k in which negative values indicate lags and positive values indicate leads. In zoo lag(x, k = 1) will shift future values one step back in time.
+xts implements the exact opposite, i.e. for a positive k, the series will shift the last value in time one period forward.
+Note: To be 100% sure use lag.xts() function.
+
+```{r}
+
+x <- xts(1:10,Sys.Date() + 1:10)
+# Create a leading TS
+lead_x <- lag.xts(x, k = -1)
+
+# Create a lagging TS
+lag_x  <- lag.xts(x, k = 1)
+
+# Merge three TSs together
+cbind(lead_x,x,lag_x)
+
+```
+
+2. Time series difference
+
+diff() functions calculates the difference 
