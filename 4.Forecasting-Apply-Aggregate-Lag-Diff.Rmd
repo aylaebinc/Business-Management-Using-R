@@ -62,8 +62,6 @@ plot(ts_article["2017",])
 
 ```
 
-
-
 ### 7. Leading/lagging time series and difference
 
  7.1. To lag (aka backshift operation, Lk notation) a series is another common modification for time series. Lagging lets you see observations like yesterday's value in the context of today.
@@ -87,7 +85,25 @@ cbind(lead_x,x,lag_x)
 
  7.2. Time series difference
 
-diff() functions calculates the difference 
+ If a time series is non-stationary it can be converted to stationary one by means of difference operator. 
+ A single or first order difference is calculated as x(t) - x(t-k) where k is the number of lags to go back. 
+Higher order differences are simply the reapplication of a difference to each prior result.
+FOr example, first order difference is when x(t) - x(t-1).
+diff(x, lag = 1, differences = 1, ...) functions calculates the difference.
+ * the lag argument is the number of periods to use
+ * the differences is an integer indicating the order of the difference, or how many times diff() is called: 
+ diff(diff(x)) is the same as diff(x, differences = 2)
+```{r TS difference}
+
+# difference can be constructed with lag operator and subtraction.
+# Example of first order difference:
+x - lag(x)
+
+# it gives the same results as:
+diff(x)
+
+# If we have monthly data, we can calculate the first order 12 month difference diff(ts_monthly, lag = 12, differences = 1) x(t) - x(t-12)
+```
 
 
 ### 8. Apply a function by time period(s)
@@ -118,12 +134,14 @@ plot(ts_global[endpoints(ts_global,on="week",k = 2)], main = "Sales on every sec
 Here we will use the endpoints and give them to the base function apply(). Then we will apply this function on a window of time.
 For example, I want to know monthly total sales amount or weekly mean sales, etc.
 period.apply(x, INDEX, FUN, ...) is used, where INDEX will be our endpoints.
+As usual you can always pass additional function arguments to function inside apply call. 
+For example, if FUN = sum, you can pass to sum() its argument na.rm = TRUE.
 
 ```{r Applying function by time period}
 
 # monthly sales
 index <- endpoints(ts_global,on="month")
-ts_monthly_sales <- period.apply(ts_global, INDEX = index, FUN = sum)
+ts_monthly_sales <- period.apply(ts_global, INDEX = index, FUN = sum, na.rm = TRUE)
 
 # weekly mean sales
 index_weekly <- endpoints(ts_client_country,on="week")
@@ -141,10 +159,10 @@ Let's use split() to split a time seriesby month and use lapply() to get the mon
 Basically we can say that period.apply() == split() + lapply()
 ```{r}
 
-# Split TS by month
+# Split TS by month and create a list
 ts_monthly_split <- split(ts_article_category, f = "month")
 
-# Create a list of monthly sales
+# Apply sum function to the list to calculate monthly sales
 ts_monthly_sales <- lapply(ts_monthly_split, sum)
 
 # Let's check if this method produces the same result as period.apply (see 8.2)?
@@ -154,9 +172,50 @@ ts_monthly_sales_global <- lapply(ts_monthly_split_global, sum)
 # The difference is 0.
 sum(unlist(ts_monthly_sales_global)) - sum(ts_monthly_sales)
 
+# Cumulative  sum by month, here I apply cumsum() function to the list:
+ts_monthly_cumsum <- lapply(ts_monthly_split, cumsum)
+
+# let's plot the first month for TRAIN product category:
+plot(ts_monthly_cumsum[[1]]$TRAIN, main = "1 month TRAIN cum sum")
+
+# Let's validate the result, must be 0:
+sum(cumsum(ts_article_category["201501","TRAIN"]) - ts_monthly_cumsum[[1]]$TRAIN)
 ```
 
 ### 9. Rolling Functions 
 
+Another common task while working with time series data is to apply a function on a rolling window of data.
+In zoo it's implemented through rollapply() function. 
+It takes a time series object x, a window size width, and a function FUN to apply to each rolling period.
+Attention! a number supplied to the width argument specifies the number of observations in a window. You have to be aware of the periodicity of your time series, i.e. daily, weekly, etc. SO, if width = 5, it will take the 5-day max of a series with daily observations. If the series had monthly observations, it would take the 5-month max.
+Our ts_*** time series have daily observations.
+Let's calculate rolling 7 day sum of sales:
 
+```{r 7 day rolling sum}
+
+rolling_sum <- rollapply(ts_client_country,width = 7,FUN = sum)
+head(rolling_sum[,c("BE","RU")],n = 20)
+
+# Let's calculate the cum sum and compare with what rollapply gives us:
+i <- 1
+j <- 7
+cumsum_RU <- vector(mode = "integer")
+cumsum_BE <- vector(mode = "integer")
+while (i < 15) {
+  while (j < 22) {
+  cumsum_RU[i] <- sum(ts_client_country[i:j,"RU"]) 
+  cumsum_BE[i] <- sum(ts_client_country[i:j,"BE"])
+  j <- j + 1
+  break
+    }
+ i <- i + 1
+}
+res <- cbind(cumsum_BE,cumsum_RU)
+
+# validating and the difference must be 0:
+sum(res) - sum(head(rolling_sum[,c("BE","RU")],n = 20), na.rm = TRUE)
+
+
+```
+ 
  
