@@ -386,3 +386,37 @@ Hyndman et al point out the following properties of ACF:
  1. "When data have a trend, the autocorrelations for small lags tend to be large and positive because observations nearby in time are also nearby in size. So the ACF of trended time series tend to have positive values that slowly decrease as the lags increase."
  2. "When data are seasonal, the autocorrelations will be larger for the seasonal lags (at multiples of the seasonal frequency) than for other lags."
  3. "When data are both trended and seasonal, you see a combination of these effects."
+
+### 8. Additional xts features
+
+xts provides extra features that allow to find repeating itervals, identify frequency and coverage in time, etc.
+
+ 8.1. Determining periodicity
+Periodicity defines regularity with what your data repeat. periodicity() function estimates the periodicity of a time-series-like object by calculating the median time between observations in days. This is the first step to understanding your data before going into further analysis. periodicity() also returns the range of your time series index. 
+```{r periodicity}
+periodicity(ts_article)
+```
+
+You can convert periodicity using to.period() xts functions:
+to.minutes(x,k,name,...)
+to.minutes3(x,name,...)
+to.minutes5(x,name,...)
+to.minutes10(x,name,...)
+to.minutes15(x,name,...)
+to.minutes30(x,name,...)
+to.hourly(x,name,...)
+to.daily(x,drop.time=TRUE,name,...)
+
+ 8.2. Finding the number of periods in TS
+To know how many discrete irregular periods your time series data covers, use the function ndays() and its shortcut functions nmonths(), nquarters(), etc.
+```{r number of periods}
+# Count the months
+nmonths(ts_global)
+
+# Count the quarters
+nquarters(ts_global)
+
+# Count the years
+nyears(ts_global)
+
+```
