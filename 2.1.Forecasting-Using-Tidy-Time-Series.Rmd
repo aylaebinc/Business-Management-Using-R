@@ -1,0 +1,133 @@
+---
+title: "Forecasting and Time Series Analysis Using R: A Tidy Forecasting Exploratory Analysis"
+author: "Illarion  Jabine"
+date: "11/4/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+### 1. Required packages:
+
+* tidyverse: collection of useful tools to work with data
+* forecast: Methods and tools for displaying and analysing univariate time series forecasts including exponential smoothing via state space models and automatic ARIMA modelling.
+* tsibble: Tidy Temporal Data Frames and Tools
+* fable,fabletools: Forecasting Models for Tidy Time Series
+* lubridate: functions to work with date-times and time-spans
+
+
+### 2. Key terms
+ * tsibble 
+ * Time Series
+ * Forecasting Steps
+
+### 3. Useful Links & books
+ $ <https://cran.r-project.org/web/views/TimeSeries.html>: CRAN Task View: Time Series Analysis
+ $ <https://otexts.com/fpp2/>: Forecasting: Principles and Practice by Rob J Hyndman and George Athanasopoulos
+ $ <https://fable.tidyverts.org/>
+ 
+### 4. Introduction to Tidy Time Series Approach
+
+In "2.Forecasting-Exploratory-Analysis" text I have discussed how xts package, which is a package that extends standard R functionality, can be used together with standard R visualizing tools like plot() and pairs().
+R is a rapidly evolving system, with new approaches and packages arriving all the time.
+The fable framework provides the tools to evaluate, visualise, and combine models in a workflow consistent with the tidyverse and following so called tidy forecasting workflo: <https://otexts.com/fpp3/a-tidy-forecasting-workflow.html>
+The idea is to build an integrated and consistent time series forecasting workflow working in the tidyverse environment. 
+The advantages of using "tidy time series"approach:
+ 1. tsibble object extends tidy data frames (tibble objects) by introducing temporal structure
+ 2. tsibble object also allows multiple time series to be stored in a single object
+ 3. you can manipulate tsibble using dplyr methods, i.e. filter, select, mutate, summarize, etc.
+ 4. it nativily supports ggplot2
+ 5. "mable" - a model table stores results of various model feeting as one table object.
+ 6. "fable" - a forecasting table where each row corresponds to one forecast. 
+
+### 5. Load the libraries
+Let's first load the libraries.
+```{r loading packages, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(fable)
+library(forecast)
+library(tsibble)
+library(lubridate)
+```
+
+### 6. Loading and checking the data
+
+ 6.1 Load and check the datasets.
+  Dataset1: transactions.csv: detailed daily sales transactions including customer   information, product, amout and sales chanel.
+  Dataset2: articles.csv: product hierarchy.
+ 
+```{r load the data and pre-process them}
+# Loading data from Rds file
+transactions <- read_csv("transactions.csv")
+articles <- read_csv("articles.csv")
+
+# Checking if there are any NAs:
+apply(transactions,2,anyNA)
+apply(articles,2,anyNA)
+
+# There are 6 NAs in Client City transactions. 
+
+sum(is.na(transactions$client_city))
+
+# I need to add the product hierarchy to transactions dataset from articles dataset:
+transactions <- inner_join(transactions,articles,by = "article")
+
+```
+
+ 6.2. Before creating a tsibble time series object we have to aggregate our data frame in order to have unique observation per each combination of date and categorical variables.
+ 
+```{r aggregating transactions}
+transactions <- transactions %>% group_by(article,client_type,client_country,sales_chanel,article_category,date) %>% summarise(amount = sum(amount))
+
+```
+
+ 6.3. Now we can create the tsibble time series object:
+ 
+```{r creating tsibble time series object}
+ts_tsibble <- tsibble(date = as.Date(transactions$date), 
+                  amount = transactions$amount, 
+                  article = transactions$article, 
+                  client_type = transactions$client_type, 
+                  client_country = transactions$client_country, 
+                  sales_chanel = transactions$sales_chanel, 
+                  article_category = transactions$article_category,
+                  index = date,
+                  key = c(article,client_type,client_country,sales_chanel,article_category))
+```
+
+### 7. Visualising time series using ggplot and tsibble object
+
+Now that we have tsibble time series object we can enjoy the full potential of  ggplot2 and other tools from tidyverse.
+
+```{r}
+# Let's create a basic plot
+ts_global_plot <- ts_tsibble %>%
+  mutate(year = year(date), 
+         quater = quarter(date)) %>%
+  filter(article == "SNCF" & 
+           sales_chanel %in% c("WEB","WER") & 
+           year == 2018 & quater == 4) %>%
+  ggplot(aes(x = date, y = amount)) +
+  geom_line(aes(col = sales_chanel)) +
+  xlab("Year") + ylab("Sales") +
+  ggtitle("Total Sales")
+
+# To visualize the plot
+ts_global_plot
+
+# And now add to this template different elements.
+# Here I want to have two pannels with one plot in each:
+ts_global_plot + facet_grid(sales_chanel ~ .)
+  
+```
+
+
