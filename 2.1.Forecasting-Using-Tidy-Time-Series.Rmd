@@ -103,7 +103,13 @@ ts_tsibble <- tsibble(date = as.Date(transactions$date),
                   index = date,
                   key = c(article,client_type,client_country,sales_chanel,article_category))
 ```
+ 6.4. Check the tsibble time series for any gaps and missing values (NAs):
+```{r checking for gaps}
+fill_gaps(ts_global)
+# Yes, amount column has some NAs. I will fill them with zeros.
+fill_gaps(ts_global)
 
+```
 ### 7. Visualising time series using ggplot and tsibble object
 
 Now that we have tsibble time series object we can enjoy the full potential of  ggplot2 and other tools from tidyverse.
