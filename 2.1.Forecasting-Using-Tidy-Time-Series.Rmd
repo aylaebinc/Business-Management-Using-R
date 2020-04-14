@@ -22,6 +22,7 @@ knitr::opts_chunk$set(
 * forecast: Methods and tools for displaying and analysing univariate time series forecasts including exponential smoothing via state space models and automatic ARIMA modelling.
 * tsibble: Tidy Temporal Data Frames and Tools
 * fable,fabletools: Forecasting Models for Tidy Time Series
+* feasts: Feature Extraction and Statistics for Time Series
 * lubridate: functions to work with date-times and time-spans
 
 
@@ -103,13 +104,7 @@ ts_tsibble <- tsibble(date = as.Date(transactions$date),
                   index = date,
                   key = c(article,client_type,client_country,sales_chanel,article_category))
 ```
- 6.4. Check the tsibble time series for any gaps and missing values (NAs):
-```{r checking for gaps}
-fill_gaps(ts_global)
-# Yes, amount column has some NAs. I will fill them with zeros.
-fill_gaps(ts_global)
 
-```
 ### 7. Visualising time series using ggplot and tsibble object
 
 Now that we have tsibble time series object we can enjoy the full potential of  ggplot2 and other tools from tidyverse.
@@ -136,4 +131,61 @@ ts_global_plot + facet_grid(sales_chanel ~ .)
   
 ```
 
+### 8. Time Series Features
 
+The "tidy time series" framework includes feasts package (FEatures And Statistics from Time Series). The package provides a collection of features, decomposition methods, statistical summaries and graphics functions for the analysing tidy time series data. The output of features() is a value of a feature for all combinations of key columns.
+The features include:
+ * Any numerical summary computed from a time series, various simple statistics
+ * Autocorrelations (ACF features)
+ * STL decompositions features
+ * Other features including various coefficients and statistical tests (see this link for more details <https://otexts.com/fpp3/features.html>)
+
+```{r time series features}
+# I use filter to restrict the number of rows
+ts_wer_sncf <- ts_tsibble %>% filter(sales_chanel == "WER" & article == "SNCF")
+
+# simple mean statistics
+ts_wer_sncf %>% features(amount, list(mean=mean)) %>% arrange(mean)
+
+# quantile() function
+ts_wer_sncf %>% features(amount, quantile, prob=seq(0,1,by=0.25))
+
+# To compute all of the features from the feasts package.
+# Calculating the features
+all_features <- ts_wer_sncf %>%
+  features(amount, feature_set(pkgs="feasts"))
+
+# Visualizing all features
+all_features %>%
+  select_at(vars(contains("season"), client_type)) %>%
+  mutate(
+    seasonal_peak_week = glue::glue("Q{seasonal_peak_week+1}"),
+    seasonal_trough_week = glue::glue("Q{seasonal_trough_week+1}"),
+  ) %>%
+  GGally::ggpairs(mapping = aes(colour=client_type))
+```
+Other features include (source Forecasting: Principles and Practice, Rob J Hyndman and George Athanasopoulos):
+
+* coef_hurst will calculate the Hurst coefficient of a time series which is a measure of “long memory”. A series with long memory will have significant autocorrelations for many lags.
+* spectral_entropy will compute the (Shannon) spectral entropy of a time series, which is a measure of how easy the series is to forecast. A series which has strong trend and seasonality (and so is easy to forecast) will have entropy close to 0. A series that is very noisy (and so is difficult to forecast) will have entropy close to 1.
+* bp_stat gives the Box-Pierce statistic for testing if a time series is white noise, while bp_pvalue gives the p-value from that test. 
+* lb_stat gives the Ljung-Box statistic for testing if a time series is white noise, while lb_pvalue gives the p-value from that test. 
+The kth partial autocorrelations measure the relationship between observations k periods apart after removing the effects of observations between them. So the first partial autocorrelation (k = 1 ) is identical to the first autocorrelation, because there is nothing between them to remove. The pacf5 feature contains the sum of squares of the first five partial autocorrelations.
+diff1_pacf5 contains the sum of squares of the first five partial autocorrelations from the differenced data.
+diff2_pacf5 contains the sum of squares of the first five partial autocorrelations from the differenced data.
+season_pacf contains the partial autocorrelation at the first seasonal lag.
+kpss_stat gives the Kwiatkowski-Phillips-Schmidt-Shin (KPSS) statistic for testing if a series is stationary, while kpss_pvalue gives the p-value from that test.
+pp_stat gives the Phillips-Perron statistic for testing if a series is non-stationary, while pp_pvalue gives the p-value from that test.
+ndiffs gives the number of differences required to lead to a stationary series based on the KPSS test. 
+nsdiffs gives the number of seasonal differences required to make a series stationary.
+var_tiled_mean gives the variances of the “tiled means” (i.e., the means of consecutive non-overlapping blocks of observations). The default tile length is either 10 (for non-seasonal data) or the length of the seasonal period. This is sometimes called the “stability” feature.
+var_tiled_var gives the variances of the “tiled variances” (i.e., the variances of consecutive non-overlapping blocks of observations). This is sometimes called the “lumpiness” feature.
+shift_level_max finds the largest mean shift between two consecutive sliding windows of the time series. This is useful for finding sudden jumps or drops in a time series.
+shift_level_index gives the index at which the largest mean shift occurs.
+shift_var_max finds the largest variance shift between two consecutive sliding windows of the time series. This is useful for finding sudden changes in the volatility of a time series.
+shift_var_index gives the index at which the largest mean shift occurs
+shift_kl_max finds the largest distributional shift (based on the Kulback-Leibler divergence) between two consecutive sliding windows of the time series. This is useful for finding sudden changes in the distribution of a time series.
+shift_kl_index gives the index at which the largest KL shift occurs.
+n_crossing_points computes the number of times a time series crosses the median.
+n_flat_spots computes the number of sections of the data where the series is relatively unchanging.
+stat_arch_lm returns the statistic based on the Lagrange Multiplier (LM) test of Engle (1982) for autoregressive conditional heteroscedasticity (ARCH).
