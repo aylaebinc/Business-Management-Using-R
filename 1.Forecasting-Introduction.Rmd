@@ -33,7 +33,7 @@ knitr::opts_chunk$set(
 
 ### 3. Useful Links & books
  $ <https://cran.r-project.org/web/views/TimeSeries.html>: CRAN Task View: Time Series Analysis
- $ <https://otexts.com/fpp2/>: Forecasting: Principles and Practice by Rob J Hyndman and George Athanasopoulos
+ $ <https://otexts.com/fpp2/> and <https://otexts.com/fpp3/>: Forecasting: Principles and Practice by Rob J Hyndman and George Athanasopoulos
  $ <https://www.stat.pitt.edu/stoffer/tsda/>
  $ <https://www.crcpress.com/Time-Series-A-Data-Analysis-Approach-Using-R/Shumway-Stoffer/p/book/9780367221096>: Time Series: A Data Analysis Approach Using R by Robert Shumway, David Stoffer
  $ <https://github.com/joshuaulrich/xts>: Github of the xts package creator. 
