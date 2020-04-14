@@ -28,8 +28,8 @@ knitr::opts_chunk$set(
 
 ### 2. Key terms
  * tsibble 
- * Time Series
- * Forecasting Steps
+ * Tidy time series
+ * Time series features
 
 ### 3. Useful Links & books
  $ <https://cran.r-project.org/web/views/TimeSeries.html>: CRAN Task View: Time Series Analysis
